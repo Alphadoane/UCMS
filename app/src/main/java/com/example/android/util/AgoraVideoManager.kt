@@ -9,6 +9,7 @@ import io.agora.rtc2.video.VideoCanvas
 import kotlinx.coroutines.flow.MutableStateFlow
 
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
@@ -87,7 +88,7 @@ object AgoraVideoManager {
                 
                 // Fetch JWT Token from UserPrefs to authenticate with our backend
                 val userPrefs = com.example.android.data.prefs.UserPrefs(context)
-                val jwtToken = kotlinx.coroutines.flow.first(userPrefs.authToken)
+                val jwtToken = userPrefs.authToken.first()
                 
                 // URL encode channel name to handle special characters safely
                 val encodedChannel = java.net.URLEncoder.encode(channelName, "UTF-8")
