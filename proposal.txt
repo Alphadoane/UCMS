@@ -1,0 +1,422 @@
+
+
+
+
+
+
+
+
+
+
+
+
+BACHELOR OF SCIENCE IN SOFTWARE DEVELOPMENT
+
+FINAL YEAR PROJECT
+
+INTEGRATED CAMPUS MANAGEMENT SYSTEM
+
+(KCA STUDENT APP)
+
+BY
+
+22/04168
+
+DOANE WELLINGTONE OGWENO
+
+
+
+
+2204168@students.kcau.ac.ke
+
+
+
+
+PROJECT PROPOSAL DOCUMENTATION SUBMITTED IN PARTIAL FULFILMENT FOR
+
+THE REQUIREMENTS FOR THE AWARD OF A DEGREE IN SOFTWARE DEVELOPMENT
+
+
+
+
+PRESENTED TO: DR RUFUS GIKERA
+
+
+
+
+
+
+
+
+
+
+
+
+
+1
+
+DECLARATION
+
+
+
+I declare that this project is my original work and has not been presented in any other college or University for the award of a Diploma or Degree.
+
+Student
+
+Name ………………………………………………..Date…………………………………………..
+
+Signature………………………………………………
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2
+
+Contents DECLARATION..........................................................................................................................................2 1BACKGROUND ..................................................................................................................................4
+1.1       PROBLEM STATEMENT...........................................................................................................4 1.2       Literature review...........................................................................................................................5 1.3       Proposed solution..........................................................................................................................5 1.4       Project objectives..........................................................................................................................6 Specific Objectives ...............................................................................................................................6 1.5       Methodology.................................................................................................................................6 Phases of the process ............................................................................................................................7 1.6       Budget and resources....................................................................................................................7 1.7       Constraints....................................................................................................................................7 1.8       PROJECT SCHEDULE................................................................................................................8 1.9       Project Gantt chart ........................................................................................................................9 1.10     Conclusion....................................................................................................................................9 1.11     References.....................................................................................................................................9
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3
+
+1 BACKGROUND
+
+KCA University, like many modern academic institutions, operates multiple independent systems to smoothly manage student activities, virtual leaning, fee payment and even student complaints. These systems serve different purposes and are good in what they do but accessing them all in the same platform would make the user experience much better and reduce data inconsistency as well as enhance real-time synchronization.
+
+Students rely on separate web apps when accessing the student portal and virtual campus, and even to some extent they get access to virtual classes through zoom links shared locally through WhatsApp. This fragmentation makes it hard especially during new semester transition. There are delays during unit allocations, and generation of a stabilized teaching timetable.
+
+The Integrated Campus Management System seeks to unify these independent functions into a single platform thus providing students, lecturers and administrators with an all-in-one digital university environment. The system aims to simplify access to academic information, facilitate efficient online communication, manage complaints efficiently and effectively, and automate billing and fee management.
+
+
+1.1PROBLEM STATEMENT
+
+KCA University faces multiple challenges when dealing with students. Most of these challenges are evident in every tri-semester transition. Some of the current prominent issues with the system are;
+
+I.Fragmented platforms
+
+Currently the university has independent student portal and virtual campus , which would make the data management easier and faster if they both are in the same environment
+II.Manual and time consuming complaint resolving process
+
+Whenever students have complaints, they go to school to file and follow up the given complaints, when they can do so if a remote system is deployed and made efficient in handling the issues.
+III.Limited data synchronization between student portal and the virtual campus. Students sign nominal roll in the student portal and the units are separately loaded into their virtual campus. Likewise for virtual campus where coursework results are posted at first, the information should be immediately projected on the
+
+
+
+4
+
+student portal, but it is later manually input into the system before it can be
+
+displayed in the student portal.
+
+IV.Lack of a centralized platform for monitoring student attendance and participation in online classes.
+Students access virtual classes through the virtual campus, and they are required to sign attendance manually. This should, however, not be the case. The system should automatically monitor student attendance and how active they are in the class.
+
+
+
+1.2Literature review
+
+The shut down during the COVID pandemic, led to strategic development of technological aspects of the education system. This is when the online education systems were brought to light with more emphasis being put to them especially due to the regulations governing quality assurance in the education system.
+
+Major higher education institutions adopted the online education system so as to help keep track of time and continue education. This model of learning has been used to date with minimal improvements being made to it. Institutions like KCA University have student portals and virtual campus which enable students to access their academic resources and see their results with much ease. However, these systems are functioning separately in different web apps, when they should be in one common platform to enable easy access to both the features.
+
+When this system comes to life, the university life will be experienced just a click away in our mobile gadgets. This will make students learn from any place as they will be having quality access to all the features of the institutions from anywhere in the world.
+
+
+
+1.3Proposed solution
+
+
+The system will serve as a centralized platform combining four key modules:
+
+
+1. Student portal – For managing student’s personal details, course registration, unit selection, results, and notifications.
+2. Virtual Campus – Provides access to online classes, resources, discussion forums, and lecturer-student interactions.
+
+
+5
+
+3. Complaint Management System – Allows students to submit, track, and receive feedback on their complaints.
+4. Fee Billing System – Displays fee structures, payments, and outstanding balances in real time with mobile payment integration.
+
+This system will be accessible via mobile application connected to a central database. It will ensure role-based access (student, lecturer, admin, finance officer) and integrate with existing institutional systems such as student records and accounting software.
+
+The system will also have an offline feature where students can have access to resources they downloaded and a caching mechanism will be implemented so that their progress made while offline is automatically uploaded and updated once the mobile device is back online.
+
+
+
+
+1.4Project objectives
+
+
+The general objective for this project is to design and implement an Integrated Campus Management System that enhances communication, transparency, and efficiency within KCA University.
+
+Specific Objectives
+
+
+To develop a mobile platform integrating academic, financial, and complaint functions. To automate the student complaint submission and resolution process.
+To provide students with real-time access to academic and financial information.
+
+To enable virtual interactions between students and lecturers through the virtual campus. To ensure data security, reliability, and scalability of the system.
+
+1.5Methodology
+
+This project will follow the software development lifecycle using the agile methodology which allows interactive development and continuous feedback.
+
+
+
+
+
+6
+
+Phases of the process
+
+
+Requirements Gathering – Interview students, staff, and administrators to identify key features.
+System Design – Create UML diagrams, database schema, and user interface mockups. Implementation – Develop the mobile applications using Java (Android Studio) and
+Python for backend APIs, with a MySQL database.
+
+Testing – Conduct unit, integration, and user acceptance testing.
+
+     Deployment – Host the web system on a cloud server and distribute the mobile app.      Maintenance – Provide regular updates, user support, and performance monitoring.
+
+1.6Budget and resources
+
+item
+description
+Estimated price
+Software tools
+Android studio, MySQL, Django API
+0 (open source)
+hardware
+Development laptop, backup thumb drive
+80,000
+internet
+WIFI connectivity
+15,000
+Testing and maintenance
+Device testing and upgrade
+30,000
+Miscellaneous
+Documentation, presentation, research
+20,000
+
+
+
+
+
+
+
+
+
+
+1.7Constraints
+
+
+Limited budget for advanced tools.
+
+Internet connectivity challenges for virtual campus functionality. Complexity when integrating with the existing university systems. Time constraints due to academic schedules.
+User training and adaptation to the new platform.
+
+
+7
+
+Access to zoom SDK
+
+
+
+
+
+1.8PROJECT SCHEDULE
+
+Task
+Description
+Task duration
+Planned start date
+Planned completion date
+Deliverables
+1
+Project proposal design
+1 Week
+22/09/2025
+29/09/2025
+Project
+
+proposal
+2
+Requirements
+
+specification design
+2 Weeks
+01/10/2025
+15/10/2025
+System
+
+requirements specification document
+3
+System design specification document
+4 Weeks
+16/10/2025
+16/11/2025
+Design specification document
+4
+Preparation of progress
+
+report
+1 Weeks
+17/11/2025
+24/11/2025
+Presentation
+
+done
+5
+Test plan document design
+2 Weeks
+01/02/2026
+14/02/2026
+Test plan document
+6
+System coding and compiling
+5 Weeks
+14/02/2026
+21/03/2026
+Progress presentation
+7
+System testing
+1 Week
+14/03/2026
+21/03/2026
+Test results
+8
+Implementation strategy document design
+1 Week
+16/03/2026
+23/03/2026
+Implementation strategy document
+9
+User manual design
+1 Week
+16/03/2026
+23/03/2026
+User manual
+10
+Project presentation
+1 Day
+23/03/2026
+27/03/2026
+Present project
+11
+Compilation of complete system and final documentation
+1 week
+27/03/2026
+04/04/2026
+Final project documentation and compiled system
+
+
+8
+
+
+
+
+
+
+1.9Project Gantt chart
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1.10Conclusion
+
+
+The proposed Integrated Campus Management System will enhance service delivery and digital interaction here at KCA University. By combining academic, administrative, and financial operations into one seamless platform, the system will reduce manual workload, enhance transparency, and improve student satisfaction. Once implemented, it will position KCA University as a model of technological advancement and digital transformation in higher education category.
+
+
+
+
+1.11References
+
+ University of Nairobi ICT Department. (2022). Student Portal Development and Impact Study.
+
+ Makerere University ICT Directorate. (2021). Digital Complaint System Evaluation.
+
+ Sommerville, I. (2020). Software Engineering (10th Edition). Pearson Education.
+
+ Pressman, R. S. (2019). Software Engineering: A Practitioner’s Approach. McGraw-Hill.
+
+
+
+9

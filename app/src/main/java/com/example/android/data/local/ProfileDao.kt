@@ -1,0 +1,22 @@
+package com.example.android.data.local
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface ProfileDao {
+    @Query("SELECT * FROM profile LIMIT 1")
+    fun observeProfile(): Flow<ProfileEntity?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(profile: ProfileEntity)
+
+    @Query("DELETE FROM profile")
+    suspend fun clear()
+}
+
+
+

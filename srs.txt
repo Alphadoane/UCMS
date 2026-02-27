@@ -1,0 +1,259 @@
+
+BACHELOR OF SCIENCE IN SOFTWARE DEVELOPMENT
+FINAL YEAR PROJECT
+INTEGRATED CAMPUS MANAGEMENT SYSTEM
+(KCA STUDENT APP)
+BY
+22/04168
+DOANE WELLINGTONE OGWENO
+
+2204168@students.kcau.ac.ke
+
+SYSTEM REQUIREMENTS SPECIFICATION DOCUMENTSUBMITTED IN PARTIAL FULFILMENT FOR THE REQUIREMENTS FOR THE AWARD OF A DEGREE IN SOFTWARE DEVELOPMENT
+
+PRESENTED TO: DR RUFUS GIKERA
+
+
+DECLARATION
+
+I declare that this project is my original work and has not been presented in any other college or University for the award of a Diploma or Degree.
+Student 
+Name………………………………………………..Date…………………………………………..
+Signature………………………………………………
+
+Supervisor
+Name………………………………………………..Date…………………………………………..
+Signature………………………………………………
+
+
+Table of Contents
+DECLARATION2
+1.INTRODUCTION4
+1.1Purpose4
+1.2Intended Audience4
+1.3Project scope4
+1.4References5
+2.OVERAL DESCRIPTION5
+2.1Product Perspective5
+2.2Product Features6
+2.3User Classes and Characteristics6
+2.4Operating Environments6
+2.5Design and Implementation Constraints7
+2.6User Documentation7
+2.7Assumptions and Dependencies7
+3.SYSTEM FEATURES8
+3.1Description and Priority8
+3.2Response Sequence8
+3.3Functional Requirements8
+4.EXTERNAL INTERFACE REQUIREMENTS9
+4.1User Interface9
+4.2Hardware Interface9
+4.3Software Interface9
+5.OTHER NONFUNCTIONAL REQUIREMENTS10
+5.1Performance Requirements10
+5.2Safety Requirements10
+5.3Security Requirements10
+5.4Software Quality Attributes10
+6.OTHER REQUIREMENTS11
+Appendix A: Glossary11
+
+INTRODUCTION
+Purpose
+
+The purpose of this document is to define the functional and non-functional requirements of the Integrated Campus Management System (ICMS) for KCA University. The document provides a detailed description of the system’s features, interfaces, performance, and design constraints. It also serves as a guideline for developers, project managers, testers, and stakeholders throughout the system development lifecycle.
+The document clearly provides the developers point of view before actually making the intended system.
+
+Intended Audience
+This document is intended for the following persons:
+Project developers: This will enable them to understand functional and technical system requirements.
+System designers: These are the people who design system architecture and database structures.
+Testers: These are the skilled persons who prepare test cases for system validation and verification.
+University administrators: they will be tasked with reviewing the system capabilities and ensuring they meet institutional mission, vision and goals.
+Students and lecturers: they are the future end-users who will interact with the application.
+
+Project scope
+
+This system aims to provide a centralized platform which integrates four core components:
+Student portal: used for course registration, deferment request, results, notifications, and personal details.
+Virtual Campus: This will enable online learning in reliable interactive peer environments, resource sharing, and lecturer-student communication.
+Complaint Management System: this will be used for submitting, tracking, and resolving student grievances.
+Fee Billing System: this will be used for viewing fee structures, balances, and automated receipts. And also have an automated billing option for fast reliable mobile fee payments
+
+The system will operate on mobile (Android) platform as a single application, supported by a centralized database. It will have offline features as well as online capabilities to improve efficiency, transparency, and communication between students and university staff.
+
+References
+Sommerville, I. (2020) Software Engineering, 10th edn. Pearson Education.
+Pressman, R. S. (2019) Software Engineering: A Practitioner’s Approach, 8th edn. McGraw-Hill Education.
+KCA University (2024) Strategic Plan 2024–2029. Nairobi: KCA University Press.
+Makerere University ICT Directorate. (2021) Digital Complaint System Evaluation Report. Kampala: Makerere University.
+
+OVERAL DESCRIPTION
+Product Perspective
+The student app is a standalone, integrated system designed to consolidate various university functions. It will connect to existing student databases, financial systems and virtual campus while introducing new modules for complaints and improved virtual learning environment. The system will employ a client-server architecture using RESTful APIs to synchronize mobile clients.
+
+Product Features
+Unified login for all users (students, lecturers, admin).
+Real-time fee and billing updates.
+Online class attendance and virtual sessions.
+Complaint submission, tracking, and feedback.
+Push notifications for deadlines and announcements.
+Secure authentication and data encryption.
+Interconnectivity between virtual campus and student portal
+
+User Classes and Characteristics 
+
+User Class
+Description
+Technical Expertise
+Students
+Access academic, financial, and complaint services
+Basic computer/mobile skills
+Lecturers
+Upload course materials, interact with students
+Intermediate
+Administrators
+Manage users, complaints, and billing
+Advanced
+Finance Officers
+Oversee payments, generate reports
+Intermediate
+
+Operating Environments
+
+Mobile Platform: Android 8.0 or higher
+Server Environment: Linux-based server running Python (Django), MySQL
+Network: Reliable internet connection (Wi-Fi or mobile data)
+
+Design and Implementation Constraints
+
+Limited budget for advanced tools.
+Internet connectivity challenges for virtual campus functionality.
+Complexity when integrating with the existing university systems.
+Time constraints due to academic schedules.
+User training and adaptation to the new platform.
+Access to zoom SDK
+
+User Documentation
+
+For the project to become a success and to have optimal functionality, users have to be shown the basics on how to interact with the interface. The alignment of the user interface is standard and interactive, to enable fast understanding on how to use the application. User guides and manuals will be produced to make it easy to train the users further on how to use the app efficiently.
+The documentations will include:
+Online help guide
+User manual (delivered in softcopy pdf format)
+Installation and configuration guide (pdf format, soft copy)
+Frequently asked questions (FAQs)
+Project ReadMe (ReadMe.md file for developers) 
+
+Assumptions and Dependencies
+
+It is assumed that users have internet-enabled devices.
+It is assumed that the University servers have sufficient capacity for hosting.
+It is assumed that there is reliable internet connectivity is available for synchronization.
+It is assumed that the project depends on timely feedback from KCA University ICT staff.
+It is assumed that the institution has a database that will be used in the production phase.
+It is assumed that the data used in the development phase is sufficient for optimum testing of the system before deployment.
+SYSTEM FEATURES
+Description and Priority
+Feature
+Description
+Priority
+Student portal
+Managing student user details
+High
+Virtual campus
+Online learning environment
+High
+Complaint system
+Lodge and track complaints
+High
+Fee billing
+Real-time fee billing, tracking and receipts
+High
+Admin panel
+Manage users, data and reports
+medium
+
+
+Response Sequence
+
+User starts the app and logs in
+System validates authentication through the server and database
+Upon success, the user gains access to the user interface features 
+While interacting with the user interface, the user can perform various actions, like, attending classes through the virtual campus, paying fees through the billing section, lodging complaints through the respective system
+The server returns confirmation messages and data updates in real-time.
+
+Functional Requirements
+The system shall enable students to view their academic records.
+The system shall allow submission and tracking of complaints.
+The system shall display real-time billing information.
+The system shall support notifications and announcements.
+The system shall allow administrators to manage users and view reports.
+The system shall allow real-time online class attendance and monitoring
+
+EXTERNAL INTERFACE REQUIREMENTS
+User Interface
+Intuitive and user-friendly interface with clear navigation.
+Responsive design for mobile.
+Dashboard-based layout for different roles.
+Use of KCA University color scheme and logo.
+
+Hardware Interface
+Smartphones with minimum 2GB RAM and Android 8.0+.
+PCs with at least 4GB RAM and internet access.
+Server with at least 8GB RAM and 50GB storage for database and logs.
+
+Software Interface
+Backend: Python Django  API
+Database: MySQL
+Frontend: Android (Java) 
+APIs: Integration for payment gateways.
+
+OTHER NONFUNCTIONAL REQUIREMENTS
+Performance Requirements
+
+The system should load any page within 3 seconds under normal network conditions.
+It should handle at least 500 concurrent users without performance degradation.
+
+Safety Requirements
+System must perform regular data backups.
+Prevent data loss during power or network failure using auto-save mechanisms.
+Security Requirements
+
+Two-factor authentication for admin users.
+Password encryption using SHA-256 or equivalent.
+Role-based access control to prevent unauthorized data access.
+Regular vulnerability assessments.
+
+
+
+
+Software Quality Attributes
+
+Usability: Simple and intuitive UI.
+Reliability: System uptime of at least 99%.
+Maintainability: Modular code structure for easy updates.
+Scalability: Support for additional modules in the future.
+
+OTHER REQUIREMENTS
+The system shall comply with university IT policies and data protection laws.
+Training sessions shall be conducted for users after deployment.
+A feedback mechanism shall be implemented for system improvement.
+Appendix A: Glossary
+
+Term
+Definition
+ICMS
+Integrated Campus Management System
+API
+Application Programming Interface
+UI
+User Interface
+DB
+Database
+JSON
+JavaScript Object Notation
+M-Pesa
+Mobile money transfer service used in Kenya
+SDLC
+Software Development Life Cycle
+UAT
+User Acceptance Testing

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Portal — Android + Django REST + MongoDB</title>
+  <style>
+    body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #1f2937; padding: 24px; max-width: 900px; margin: auto; }
+    h1, h2, h3 { color: #111827; }
+    h1 { font-size: 28px; margin-bottom: 4px; }
+    h2 { font-size: 22px; margin-top: 24px; }
+    h3 { font-size: 18px; margin-top: 18px; }
+    code, pre { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; }
+    pre { overflow-x: auto; padding: 12px; }
+    .muted { color: #6b7280; }
+    ul { margin-left: 20px; }
+    .section { margin: 18px 0; }
+    .footer { margin-top: 36px; font-size: 14px; color: #6b7280; }
+  </style>
+  </head>
+<body>
+  <h1>Student Portal — Android + Django REST + MongoDB</h1>
+  <div class="muted">Version 1.0</div>
+
+  <div class="section">
+    <h2>1. Overview</h2>
+    <p>
+      Comprehensive technical and product documentation for the Student Portal project. The system comprises an Android
+      application (Kotlin + Jetpack Compose) and a Django REST Framework backend with MongoDB for domain data and SQLite
+      for Django internals. Modules include authentication, profile, academics, finance, library, virtual campus, and a
+      voting system.
+    </p>
+  </div>
+
+  <div class="section">
+    <h2>2. Architecture</h2>
+    <ul>
+      <li><b>Android App</b>: Kotlin, Jetpack Compose, Navigation-Compose, Room, DataStore, Retrofit/OkHttp, kotlinx.serialization, Timber</li>
+      <li><b>Backend</b>: Django 5, DRF, JWT (SimpleJWT), CORS, SQLite (Django), MongoDB (domain data)</li>
+      <li><b>Data</b>: MongoDB collections for users, profiles, academics, finance, voting; Room for offline cache</li>
+      <li><b>Video</b>: Google Meet (Intent-based) integrated; optional Zoom SDK via gradle properties</li>
+    </ul>
+    <p>Flow: Compose UI → Repositories → Retrofit ApiService → Django REST → MongoDB; tokens in DataStore via OkHttp interceptor.</p>
+  </div>
+
+  <div class="section">
+    <h2>3. Repository Structure</h2>
+<pre><code>android/              # Android app root
+  app/                # App module (Compose UI, navigation, data layer)
+backend/              # Django REST backend (DRF + MongoDB)
+docs/                 # Generated documentation (HTML/Markdown)
+</code></pre>
+  </div>
+
+  <div class="section">
+    <h2>4. Environments & Dependencies</h2>
+    <ul>
+      <li><b>Android</b>: AGP 8.9.1, Kotlin 2.0.21, Compose BOM 2024.09.00, compileSdk 35, minSdk 24</li>
+      <li><b>Libraries</b>: Room 2.6.1, DataStore 1.1.1, Retrofit 2.11.0, OkHttp 4.12.0, kotlinx-serialization 1.7.3</li>
+      <li><b>Backend</b>: Django 5.1.1, DRF 3.15.2, django-cors-headers 4.4.0, SimpleJWT 5.3.1, PyMongo 4.6.1, argon2-cffi 23.1.0</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>5. Setup & Local Development</h2>
+    <p><b>Prereqs</b>: Android Studio (Giraffe+), JDK 11, Python 3.10+, MongoDB at <code>localhost:27017</code>.</p>
+    <h3>Backend</h3>
+<pre><code>python -m venv backend\.venv
+backend\.venv\Scripts\Activate.ps1
+pip install -r backend\requirements.txt
+cd backend
+python manage.py migrate
+python manage.py create_sample_data     # optional
+python manage.py create_voting_indexes  # once
+python manage.py runserver 0.0.0.0:8000
+</code></pre>
+    <h3>Android</h3>
+    <ul>
+      <li>Base URLs in <code>NetworkModule.kt</code>: <code>http://10.0.2.2:8000/api/</code>, <code>http://&lt;LAN-IP&gt;:8000/api/</code>, <code>http://127.0.0.1:8000/api/</code></li>
+      <li>Open in Android Studio and run on emulator/device</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>6. Configuration</h2>
+    <p><b>Android</b>: INTERNET, ACCESS_NETWORK_STATE, CAMERA, RECORD_AUDIO; cleartext allowed for dev via networkSecurityConfig.</p>
+    <p><b>Backend</b>: DEBUG=True, permissive CORS for local dev, JWT auth, SQLite (Django) + MongoDB (domain), structured console logging.</p>
+  </div>
+
+  <div class="section">
+    <h2>7. Android Application</h2>
+    <ul>
+      <li><b>UI</b>: Compose screens for Login, Home, Profile, Academics, Finance, Library, Virtual Campus, Voting</li>
+      <li><b>Data</b>: <code>ApiService</code>, <code>NetworkModule</code> (OkHttp + JSON), repositories (<code>AuthRepository</code>, <code>ProfileRepository</code>, <code>VotingRepository</code>)</li>
+      <li><b>Storage</b>: Room (Profile cache), DataStore (auth token)</li>
+      <li><b>Networking</b>: Fallback base URLs; Authorization header added when token present</li>
+      <li><b>Video</b>: Google Meet integrated; optional Zoom via gradle properties</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>8. Backend API</h2>
+    <p><b>Base</b>: <code>/api/</code></p>
+    <ul>
+      <li><b>Auth</b>: POST <code>/api/auth/jwt/login</code>, POST <code>/api/auth/jwt/refresh</code></li>
+      <li><b>Custom</b>: POST <code>/api/auth/login</code>, POST <code>/api/auth/logout</code>, GET <code>/api/profile/me</code></li>
+      <li><b>Academics</b>: GET <code>/api/academics/course-registration</code>, <code>/course-work</code>, <code>/exam-card</code>, <code>/exam-audit</code>, <code>/exam-result</code>, <code>/academic-leave</code>, <code>/clearance</code>, <code>/insights</code></li>
+      <li><b>Finance</b>: GET <code>/api/finance/fee-payment</code>, <code>/view-balance</code>, <code>/receipts</code></li>
+      <li><b>Virtual</b>: GET <code>/api/virtual/dashboard</code>, <code>/my-courses</code>, <code>/lectures</code>, <code>/zoom-rooms</code>; POST/GET attendance endpoints</li>
+      <li><b>Voting</b>: GET/POST <code>/api/voting/elections</code>, GET <code>/api/voting/elections/{id}</code>, POST candidates/vote, GET results</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>9. Data Model (MongoDB)</h2>
+    <ul>
+      <li><code>voting_elections</code>: <code>{ _id, title, candidates: [ { name } ], results: { &lt;candidate&gt;: votes }, created_at, updated_at }</code></li>
+      <li><code>voting_votes</code>: <code>{ election_id, user_id, candidate, created_at }</code> — unique index <code>(election_id, user_id)</code></li>
+      <li><code>attendance_records</code>: <code>{ room_id, course_id, user_id, date, marked_at }</code></li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>10. Security & Authentication</h2>
+    <ul>
+      <li>JWT via SimpleJWT; Authorization: Bearer token</li>
+      <li>Password hashing with Argon2 preferred</li>
+      <li>CORS enabled for local development and emulator hosts</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>11. Observability & Logging</h2>
+    <ul>
+      <li>Backend: structured console logs with environment-level</li>
+      <li>Android: OkHttp logs via Timber (DEBUG only)</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>12. Testing</h2>
+    <ul>
+      <li>Android: unit and instrumentation tests</li>
+      <li>Backend: Django management commands and sample tests</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>13. Deployment</h2>
+    <ul>
+      <li>Backend: containerize, configure env, create indexes, HTTPS via Nginx</li>
+      <li>Android: environment-aware base URLs, signed release builds</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>14. Roadmap</h2>
+    <ul>
+      <li>Wire remaining Android screens to backend APIs</li>
+      <li>Offline-first sync and robust error states</li>
+      <li>RBAC, audit logging, rate limiting</li>
+      <li>Pagination/filtering on lists; standardized error schema</li>
+      <li>Zoom SDK feature flag with fallback</li>
+      <li>CI/CD: lint, test, build, release</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>15. Troubleshooting</h2>
+    <ul>
+      <li>Emulator → backend: use <code>http://10.0.2.2:8000/api/</code></li>
+      <li>401 login: confirm MongoDB running and sample data created</li>
+      <li>409 vote: unique constraint prevents duplicate votes</li>
+      <li>CORS: ensure origin/device host are permitted</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>16. License</h2>
+    <p>MIT (or update accordingly)</p>
+  </div>
+
+  <div class="footer">
+    Convert to Word: open Markdown in Microsoft Word and Save As .docx, or use pandoc.
+  </div>
+</body>
+</html>
+
+
+

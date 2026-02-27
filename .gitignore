@@ -1,0 +1,80 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE / Editors
+.idea/
+.vscode/
+*.iml
+
+# Node / Backend
+backend/node_modules/
+scripts/node_modules/
+backend/.env
+backend/ENV
+backend/npm-debug.log*
+backend/yarn-error.log
+backend/.parcel-cache/
+backend/dist/
+backend/.cache/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.txt
+
+# Runtime data
+pids/
+*.pid
+*.seed
+
+# Coverage
+status/
+
+# Android / Multiplatform
+.gradle/
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+build/
+*/build/
+app/build/
+shared/build/
+desktopApp/build/
+/captures
+.externalNativeBuild
+.cxx
+
+# Python
+__pycache__/
+*.pyc
+backend/db.sqlite3
+backend/student_api/*/migrations/__pycache__/
+backend/student_api/core/migrations/__pycache__/
+
+# Keystore files
+*.jks
+*.keystore
+*.keystore.properties
+
+# Misc
+*.swp
+*.swo
+
+# Large Memory Dumps
+*.hprof
+
+# Project specific sensitive files
+scripts/service-account.json
+backend/backend.log
+backend/debug_admission.log
+backend/debug_admission.log.*
+backend/*.log

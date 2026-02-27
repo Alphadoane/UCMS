@@ -1,0 +1,487 @@
+
+BACHELOR OF SCIENCE IN SOFTWARE DEVELOPMENT
+FINAL YEAR PROJECT
+INTEGRATED CAMPUS MANAGEMENT SYSTEM
+(KCA STUDENT APP)
+BY
+22/04168
+DOANE WELLINGTONE OGWENO
+
+2204168@students.kcau.ac.ke
+
+SYSTEM DESIGN SPECIFICATION DOCUMENTSUBMITTED IN PARTIAL FULFILMENT FOR THE REQUIREMENTS FOR THE AWARD OF A DEGREE IN SOFTWARE DEVELOPMENT
+
+PRESENTED TO: DR RUFUS GIKERA
+
+
+DECLARATION
+
+I declare that this project is my original work and has not been presented in any other college or University for the award of a Diploma or Degree.
+Student 
+Name………………………………………………..Date…………………………………………..
+Signature………………………………………………
+
+Supervisor
+Name………………………………………………..Date…………………………………………..
+Signature………………………………………………
+
+
+Table of Contents
+DECLARATION2
+ABSTRACT5
+1.INTRODUCTION5
+1.1Purpose5
+1.2Scope6
+2.SYSTEM OVERVIEW6
+2.1System Description6
+2.2System Architecture6
+3.SYSTEM MODULES7
+3.1Student Portal module7
+3.2Virtual Campus module8
+3.3Complaint management system9
+3.4Fee billing and payment system10
+4.SYSTEM DESIGN10
+4.1Database Design10
+4.2Data Flow Diagram11
+4.3Entity Relationship Diagram11
+4.4User interface Diagram11
+5.TECHNOLOGY STACK13
+6.DEVELOPMENT METHODOLOGY13
+6.1Agile Methodology13
+7.IMPLEMENTATION PLAN14
+7.1Project Phases14
+7.2Project Schedule17
+8.SECURITY AND PRIVACY17
+9.TESTING STRATEGY21
+10.MAINTENANCE AND SUPPORT22
+11.BUDGET AND RESOURCES24
+12.CONCLUSION24
+13.REFERENCES24
+
+
+
+ABSTRACT
+The Integrated Campus Management System (ICMS) is a comprehensive digital solution designed to streamline key administrative and academic functions at KCA University. The system will integrate four major modules—Student Portal, Virtual Campus, Complaint Management, and Fee Billing—into a unified platform accessible through mobile interfaces. The ICMS aims to enhance institutional efficiency, transparency, and communication by automating routine tasks and facilitating real-time access to academic and financial data.
+Through the Student Portal module, learners can register, access course materials, and view academic progress. The Virtual Campus feature fosters online learning and engagement between students and lecturers, while the Complaint Management System will provide an efficient channel for students to lodge and track grievances. The Fee Billing module automates invoicing, payments, and receipt generation, ensuring accurate and timely financial management.
+The project adopts an object-oriented design methodology using the waterfall development model, emphasizing structured phases of requirement gathering, system design, implementation, testing, and deployment. The backend will be powered by a relational database, MySQL, while the frontend utilizes Android Studio and visual studio code for mobile development.
+Overall, the ICMS will bridge existing gaps in communication, data management, and service delivery within the university. It is envisioned to promote digital transformation, reduce paperwork, and improve user satisfaction by offering a centralized, secure, and scalable University management environment.
+
+
+INTRODUCTION
+Purpose
+
+This document outlines the detailed design and development specifications for the Integrated Campus Management System (ICMS) at KCA University. It serves as a technical blueprint for developers, system analysts, and administrators, providing an overview of the system’s architecture, modules, data design, software and hardware requirements, and implementation strategy.
+Scope
+The ICMS integrates four major university functions into one platform:
+Student Portal 
+Virtual Campus
+Complaint Management System
+Fee Billing and Payment System
+The system will streamline student engagement, automate administrative processes, and enhance transparency in service delivery at KCA University. It will be accessible via an Android mobile application.
+SYSTEM OVERVIEW
+
+System Description
+The ICMS will be a multi-tier client-server system with:
+Frontend Layer: Android app.
+Backend Layer: RESTful API built using Python Django.
+Database Layer: Centralized MySQL database.
+Integration Layer: Payment gateway (M-Pesa API) and notification services (Firebase Cloud Messaging)
+System Architecture
+Presentation layerPresentation layer
+Presentation layer
+Presentation layer
+Android app
+Application layerApplication layer
+Application layer
+Application layer
+Python Django backend APIs
+Data layer Data layer 
+Data layer 
+Data layer 
+MYSQL database
+This architecture ensures modularity, scalability, and secure data exchange between clients and the server.
+SYSTEM MODULES
+Student Portal module
+
+The portal provides students with access to academic information, personal details, grades, self services and university announcements.
+Key Features:
+User login and request for admission
+View course list and grades
+Select course units 
+Request for deferment and inter faculty transfer
+Receive notifications and announcements
+Update profile information
+
+
+
+
+
+Virtual Campus module
+
+This module will facilitate online learning and virtual interaction between lecturers and students. It will also have automated online class session monitor to automatically check attendance and single out the active students
+Key Features:
+Virtual class sessions and attendance
+Course material uploads/downloads
+Real-time chat/discussion forums
+Assignment submission and grading
+
+
+
+
+Complaint management system
+
+This module will allow students to lodge, track, and manage complaints efficiently.
+Key Features:
+Complaint submission form
+Status tracking and feedback
+Admin dashboard for resolution management
+Analytics and reporting
+
+
+
+
+
+Fee billing and payment system
+This feature automates student fee tracking, invoicing, and payment confirmation.
+Key Features:
+View fee structures and balances
+Generate electronic receipts
+Integration with M-Pesa API
+Financial reporting for administrators
+SYSTEM DESIGN
+Database Design
+The database model used is relational.
+Here are the main tables;
+Table
+Description
+Users
+Stores user login credentials and roles
+Students
+Contains student personal and academic data
+Lecturers
+Stores lecturer details and subjects taught
+Complaints
+Tracks student complaints and resolutions
+Fees
+Contains billing information, payments, and receipts
+Courses
+Stores course details and codes
+Announcements
+Manages system-wide notifications
+
+
+
+
+
+Data Flow Diagram
+
+ICMS serverICMS serverDatabase Database Student / userStudent / userThis is level 0  context diagram
+ICMS server
+ICMS server
+Database 
+Database 
+Student / user
+Student / user
+
+
+
+Login / requests
+
+
+
+Responses / data
+
+
+
+
+Entity Relationship Diagram
+
+STUDENT ----< COMPLAINT >---- ADMIN
+   |                           |
+   |                           |
+   +----< FEE BILLING >--------- FINANCE
+   |
+-  +----< COURSE >---- LECTURER
+
+
+User interface Diagram
+
+
+
+
+
+
+TECHNOLOGY STACK
+Technology used for this project are: 
+Languages: Java, Kotlin, python
+Frameworks: Django
+Tools: visual studio code, android studio, MySQL
+
+For the database, I used MySQL for the relational and firebase for the non-relational.
+During the development phase, I used the codebase in the local storage but for deployment phase, I used the codebase pushed as commits to GitHub.
+
+
+DEVELOPMENT METHODOLOGY
+Agile Methodology
+Requirement Gathering (User views)
+Here I conducted a search on how the current students interact with the system in the institution and determine areas that need twitching.
+Sprint planning
+Here I break down the entire project into segmented achievable objectives that make it easy to tackle the full project at a slow steady easy pace.
+Development
+During this phase I work on the programming part and making the work meaningful and review small increments.
+I also adhere to strict time window for achieving each milestone set.
+Testing and review
+At the end of each sprint, I conduct a review on each achievement made, I also reflect on the merits and demerits experienced during the development phase.
+Next sprints
+Here each sprint builds from the previous ones and by delivering working features at the end of every sprint, I get to see progress in real time and monitor progress early.
+Continuous improvements and deployment
+
+
+IMPLEMENTATION PLAN
+Project Phases
+Project Initiation
+Activities:
+Identify project objectives and stakeholders
+Conduct feasibility study (technical, financial, and operational)
+Define project scope and constraints
+Appoint project team and assign rolesDeliverables:
+Project charter
+Feasibility report
+Initial project plan
+System Analysis and Requirements Gathering
+Activities:
+Conduct interviews or surveys with users
+Define functional and non-functional requirements
+Develop use case diagrams and user stories
+Create Software Requirements Specification (SRS) documentDeliverables:
+Requirements document (SRS)
+Use case models
+Data flow diagrams
+
+System Design
+Activities:
+Design database structure
+Create system architecture diagrams
+Develop user interface mockups
+Define data models and APIsDeliverables:
+System Design Specification (SDS)
+UI/UX prototypes
+Database schema
+
+
+Implementation (Development)
+Activities:
+Set up development environment (e.g., Android Studio)
+Develop front-end and back-end modules
+Integrate database and APIs
+Conduct unit testing on individual modulesDeliverables:
+Source code
+Working application modules
+Unit test reports
+
+
+Testing and Quality Assurance
+
+Activities:
+
+Perform integration testing
+Conduct system and user acceptance testing (UAT)
+Fix bugs and optimize performance
+Validate requirements fulfillmentDeliverables:
+Test plans and test cases
+Bug and defect reports
+Tested software ready for deployment
+
+
+Deployment
+Activities:
+Prepare deployment environment (server or Play Store)
+Migrate data and perform final configuration
+Deploy the application to production
+Conduct user training if necessaryDeliverables:
+Deployed application
+Deployment and configuration guide
+User manuals
+
+
+Maintenance and Evaluation
+
+Activities:
+
+Monitor system performance and handle user feedback
+Fix post-deployment issues or bugs
+Release patches and updates
+Evaluate project success and document lessons learnedDeliverables:
+Maintenance logs
+Updated software versions
+Final project report
+
+Project Schedule
+
+SECURITY AND PRIVACY
+
+Security Measures
+User Authentication and Authorization
+
+The system uses JWT (JSON Web Token) authentication for secure login and session management.
+Users must provide valid credentials (email/username and password) before accessing restricted services.
+Passwords are never stored in plain text; they are hashed using PBKDF2 or Argon2 via Django’s authentication system.
+Role-based access control (RBAC) ensures that users only access resources permitted for their role (e.g., Admin, Customer, or Manager).
+
+Secure Communication
+
+All communication between the Android client and Django server is transmitted over HTTPS using SSL/TLS encryption.
+API endpoints enforce authentication headers to prevent interception or replay attacks.
+Sensitive data such as tokens or API keys are stored securely using Android Keystore and never hardcoded in the source code.
+
+Database Security (MySQL)
+
+The MySQL database is secured with strong credentials and restricted access privileges.
+Connections between the Django server and MySQL are established using encrypted SSL connections.
+Prepared statements and ORM queries are used to prevent SQL Injection attacks.
+Regular database backups and data recovery mechanisms are implemented to ensure data availability.
+Data at rest is protected through encryption and hashed identifiers for sensitive information.
+
+API Security
+
+All API endpoints are protected using token-based authentication and rate limiting to prevent brute-force or denial-of-service attacks.
+Input validation and server-side sanitization prevent malicious payloads (e.g., cross-site scripting (XSS) or JSON injection).
+APIs are version-controlled and use CORS (Cross-Origin Resource Sharing) settings to limit access only to authorized client origins.
+Error messages are sanitized to avoid disclosing system internals.
+
+Data Validation and Sanitization
+
+All user input is validated both on the Android client and the Django backend to prevent malformed data or code injection.
+Special characters, file uploads, and form data are sanitized before database storage.
+Validation ensures data integrity and prevents cross-site scripting (XSS) and buffer overflow vulnerabilities.
+
+Logging and Monitoring
+
+All major system activities, logins, and data transactions are logged for audit purposes.
+Logs are secured to prevent tampering and are stored with timestamps and user identifiers.
+Automated monitoring tools can detect abnormal behavior such as multiple failed login attempts or suspicious API requests.
+
+Error Handling and Exception Management
+
+The system implements safe error handling to ensure that error messages do not reveal technical details about the server or database.
+All exceptions are caught and logged securely without exposing stack traces to end-users.
+User-friendly messages are displayed on the Android application for better experience and security.
+
+Regular Security Updates
+
+Django and Android dependencies are kept up-to-date to address the latest security vulnerabilities.
+Regular security audits and penetration tests are scheduled to identify and fix weaknesses.
+The development team adheres to OWASP Mobile and Web Security Guidelines.
+
+Privacy Protection
+
+Data Minimization
+
+Only essential user information (e.g., name, email, delivery address) is collected.
+No unnecessary personal data or sensitive identifiers are requested from users.
+
+User Consent
+
+The app includes a Privacy Policy that clearly explains data collection, usage, and sharing practices.
+Users must explicitly accept permissions before accessing location, storage, or camera services.
+
+Data Storage and Retention
+
+User data is stored securely on the Django server and MySQL database, not on the Android device.
+Personal data is retained only as long as necessary for operational or legal reasons.
+Users can request account deletion or data removal in compliance with data protection principles.
+
+
+
+
+
+Data Sharing
+
+User data is never sold or shared with third parties without consent.
+Any integration with third-party APIs (e.g., payment gateways or Google Maps) follows secure OAuth authentication mechanisms.
+
+Compliance
+
+The system complies with global privacy standards such as GDPR (General Data Protection Regulation) and Kenya Data Protection Act 2019.
+Privacy settings are transparent and user-controlled.
+
+TESTING STRATEGY
+
+The types of testing strategies implemented are:
+Functional Testing
+Ensures that each function of the system operates according to requirements.
+Performance Testing
+Measures the responsiveness and stability of the application under load.
+Tools: Apache JMeter, Locust, or Django’s testserver stress testing.
+Objectives:
+Verify API response times (< 2 seconds per request).
+Evaluate server scalability under concurrent user load.
+Security Testing
+Ensures the system is protected against unauthorized access and data breaches.
+Tests include:
+Authentication and authorization checks (JWT token validation).
+SQL Injection and XSS attack prevention.
+Encrypted communication (HTTPS).
+Tools: OWASP ZAP, Burp Suite.
+
+Compatibility Testing
+Ensures the app runs consistently across different devices, OS versions, and screen sizes.
+Tools: Android Studio Emulator, Firebase Test Lab.
+Test Scenarios:
+Android 10 → Android 15 devices
+Phones and tablets with varied resolutions
+
+Regression Testing
+Conducted after each update or bug fix to ensure existing functionality is not broken.
+Tools: Jenkins for CI/CD test automation.
+
+Database Testing
+Validates MySQL data integrity and backend consistency.
+Focus:
+Schema validation
+Data relationships and foreign key constraints
+Query performance and transaction rollback
+
+
+MAINTENANCE AND SUPPORT
+
+Types of Maintenance to be used:
+
+Corrective Maintenance
+Focuses on identifying and fixing bugs or errors that occur during system operation.
+
+Adaptive Maintenance
+Involves modifying the system to accommodate changes in the operating environment, technologies, or regulatory requirements.
+
+Perfective Maintenance
+Aims to enhance system performance or add minor improvements based on user feedback.
+
+Preventive Maintenance
+Includes proactive measures to prevent future system failures or performance issues.
+
+Support Structure
+Technical Support
+A dedicated support team will assist users and administrators in handling technical issues related to:
+Installation and configuration
+API integration or communication errors
+Database access and synchronization
+Application updates and compatibility
+
+
+User Support
+End-users are provided with:
+
+User manuals and FAQs within the app or website.
+Tutorial videos or guides for first-time users.
+Periodic notifications about new updates or features.
+
+BUDGET AND RESOURCES
+
+CONCLUSION
+The proposed Integrated Campus Management System will enhance service delivery and digital interaction here at KCA University. By combining academic, administrative, and financial operations into one seamless platform, the system will reduce manual workload, enhance transparency, and improve student satisfaction. Once implemented, it will position KCA University as a model of technological advancement and digital transformation in higher education category
+REFERENCES
+
+University of Nairobi ICT Department. (2022). Student Portal Development and Impact Study.
+Makerere University ICT Directorate. (2021). Digital Complaint System Evaluation.
+Sommerville, I. (2020). Software Engineering (10th Edition). Pearson Education.
+Pressman, R. S. (2019). Software Engineering: A Practitioner’s Approach. McGraw-Hill
