@@ -55,3 +55,12 @@ class AuthService:
             return Student.objects.select_related('program', 'user').get(user=user)
         except Student.DoesNotExist:
             return None
+
+    @staticmethod
+    def get_lecturer_profile(user):
+        """Get lecturer profile for user"""
+        try:
+            from student_api.academics.models import Lecturer
+            return Lecturer.objects.get(user=user)
+        except Lecturer.DoesNotExist:
+            return None

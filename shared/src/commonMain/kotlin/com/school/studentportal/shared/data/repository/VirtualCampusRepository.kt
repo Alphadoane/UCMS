@@ -21,4 +21,8 @@ class VirtualCampusRepository(private val api: SharedApiService) {
         val request = CreateZoomRoomRequest(courseCode, title, startTime)
         return api.createZoomRoom(request)
     }
+
+    suspend fun deleteZoomRoom(roomId: String): Result<com.school.studentportal.shared.data.model.ApiResponse> {
+        return api.deleteZoomRoom(roomId)
+    }
 }

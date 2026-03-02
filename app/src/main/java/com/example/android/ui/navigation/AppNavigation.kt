@@ -17,11 +17,11 @@ import androidx.compose.material3.IconButton
 
 // Import all screens
 import com.example.android.ui.screens.LoginScreen
+import com.example.android.data.repository.AcademicsRepository
 import com.example.android.ui.screens.HomeScreen
 import com.example.android.ui.screens.HealthScreen
 import com.example.android.ui.screens.ProfileScreen
 import com.example.android.ui.screens.AcademicsScreen
-import com.example.android.ui.screens.FinanceScreen
 import com.example.android.ui.screens.VirtualCampusScreen
 import com.example.android.ui.screens.SimpleScreen
 import com.example.android.ui.screens.VotingSystemScreen
@@ -30,7 +30,6 @@ import com.example.android.ui.screens.virtualcampus.*
 import com.example.android.ui.screens.admin.*
 import com.example.android.ui.screens.staff.*
 import com.example.android.ui.screens.student.*
-import com.example.android.ui.screens.finance.*
 import com.example.android.ui.screens.support.*
 import com.school.studentportal.shared.ui.screens.ComplaintScreen as SharedComplaintScreen
 import com.school.studentportal.shared.ui.screens.ProfileScreen as SharedProfileScreen
@@ -43,7 +42,10 @@ import com.school.studentportal.shared.data.network.TokenManager
 import com.school.studentportal.shared.data.network.SharedApiService
 import com.school.studentportal.shared.data.repository.FinanceRepository as SharedFinanceRepository
 import com.school.studentportal.shared.data.repository.VirtualCampusRepository as SharedVirtualCampusRepository
+import com.school.studentportal.shared.ui.screens.student.finance.FinanceScreen as SharedFinanceScreen
 import com.school.studentportal.shared.ui.screens.student.finance.FeePaymentScreen as SharedFeePaymentScreen
+import com.school.studentportal.shared.ui.screens.student.finance.ViewBalanceScreen as SharedViewBalanceScreen
+import com.school.studentportal.shared.ui.screens.student.finance.ReceiptsScreen as SharedReceiptsScreen
 import androidx.compose.ui.platform.LocalContext
 import com.example.android.data.prefs.UserPrefs
 import com.school.studentportal.shared.data.repository.AdminRepository as SharedAdminRepository
@@ -160,7 +162,7 @@ fun AppNavHost(
              )
         }
         composable(Routes.ACADEMICS) { AcademicsScreen(onNavigate = { navController.navigate(it) }) }
-        composable(Routes.FINANCE) { FinanceScreen(onNavigate = { navController.navigate(it) }) }
+        composable(Routes.FINANCE) { SharedFinanceScreen(onNavigate = { navController.navigate(it) }) }
         composable(Routes.VIRTUAL_CAMPUS) { 
             val sharedUser = remember(initialUser) {
                 if (initialUser != null) {
@@ -287,8 +289,43 @@ fun AppNavHost(
                 onBack = { navController.popBackStack() }
             )
         }
-        composable(Routes.FINANCE_VIEW_BALANCE) { ViewBalanceScreen(onPayNow = { navController.navigate(Routes.FINANCE_FEE_PAYMENT) }) }
-        composable(Routes.FINANCE_RECEIPTS) { ReceiptsScreen() }
+        composable(Routes.FINANCE_VIEW_BALANCE) { 
+            val context = LocalContext.current
+            val userPrefs = remember { UserPrefs(context) }
+            val token by userPrefs.authToken.collectAsState(initial = null)
+            val tokenManager = remember { TokenManager() }
+            
+            LaunchedEffect(token) {
+                if (token != null) tokenManager.saveTokens(token!!, "")
+            }
+            
+            val sharedApiService = remember { SharedApiService(tokenManager) }
+            val financeRepo = remember { SharedFinanceRepository(sharedApiService) }
+            
+            SharedViewBalanceScreen(
+                repository = financeRepo,
+                onBack = { navController.popBackStack() },
+                onPayNow = { navController.navigate(Routes.FINANCE_FEE_PAYMENT) }
+            )
+        }
+        composable(Routes.FINANCE_RECEIPTS) {
+            val context = LocalContext.current
+            val userPrefs = remember { UserPrefs(context) }
+            val token by userPrefs.authToken.collectAsState(initial = null)
+            val tokenManager = remember { TokenManager() }
+            
+            LaunchedEffect(token) {
+                if (token != null) tokenManager.saveTokens(token!!, "")
+            }
+            
+            val sharedApiService = remember { SharedApiService(tokenManager) }
+            val financeRepo = remember { SharedFinanceRepository(sharedApiService) }
+            
+            SharedReceiptsScreen(
+                repository = financeRepo,
+                onBack = { navController.popBackStack() }
+            )
+        }
 
         // Virtual Campus sub-destinations
         composable(Routes.VC_DASHBOARD) { VCDashboardScreen() }
@@ -564,20 +601,28 @@ fun AppNavHost(
         // Staff Routes
         composable(Routes.STAFF_COURSES) {
              val context = LocalContext.current
-             val userPrefs = remember { UserPrefs(context) }
-             val token by userPrefs.authToken.collectAsState(initial = null)
-             val tokenManager = remember { TokenManager() }
-             val sharedApiService = remember { SharedApiService(tokenManager) }
-             val staffRepo = remember { com.school.studentportal.shared.data.repository.StaffRepository(sharedApiService) }
+             val academicsRepo = remember { AcademicsRepository(context) }
 
-             LaunchedEffect(token) {
-                 if (token != null) tokenManager.saveTokens(token!!, "")
-             }
-
-             com.school.studentportal.shared.ui.screens.staff.StaffCoursesScreen(
-                 repository = staffRepo,
+             StaffCoursesScreen(
+                 repository = academicsRepo,
+                 onNavigate = { navController.navigate(it) },
                  onBack = { navController.popBackStack() }
              )
+        }
+
+        composable(
+            route = "staff_course_detail/{courseId}",
+            arguments = listOf(navArgument("courseId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val courseId = backStackEntry.arguments?.getInt("courseId") ?: 0
+            val context = LocalContext.current
+            val academicsRepo = remember { AcademicsRepository(context) }
+            
+            StaffCourseDetailScreen(
+                courseId = courseId,
+                repository = academicsRepo,
+                onBack = { navController.popBackStack() }
+            )
         }
 
         composable(Routes.STAFF_STUDENT_LOOKUP) {

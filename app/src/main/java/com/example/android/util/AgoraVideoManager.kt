@@ -83,44 +83,53 @@ object AgoraVideoManager {
         val context = appContext ?: return
         
         kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            var token: String? = null
+            
+            // Try to fetch an Agora token from the backend.
+            // The project runs in App ID Only mode, so the backend returns token=null.
+            // We iterate over several base URLs (ngrok → emulator → LAN) for resilience.
+            val baseUrls = listOf(
+                "https://entreatingly-commonable-georgann.ngrok-free.dev/api/",
+                "http://10.0.2.2:8000/api/",
+                "http://10.21.167.10:8000/api/"
+            )
+            
             try {
-                var token: String? = null
-                
-                // Fetch JWT Token from UserPrefs to authenticate with our backend
                 val userPrefs = com.example.android.data.prefs.UserPrefs(context)
                 val jwtToken = userPrefs.authToken.first()
                 
-                // URL encode channel name to handle special characters safely
                 val encodedChannel = java.net.URLEncoder.encode(channelName, "UTF-8")
-                
-                // Point to our Django Backend (10.0.2.2 is localhost for emulator)
-                val urlString = "http://10.0.2.2:8000/api/virtual/agora-token?channelName=$encodedChannel&uid=$uid"
-                val url = java.net.URL(urlString)
-                val connection = url.openConnection() as java.net.HttpURLConnection
-                connection.requestMethod = "GET"
-                connection.connectTimeout = 5000
-                
-                // Add Authorization Header if we have a JWT
-                if (!jwtToken.isNullOrBlank()) {
-                    connection.setRequestProperty("Authorization", "Bearer $jwtToken")
-                }
-                
-                if (connection.responseCode == 200) {
-                     val stream = connection.inputStream
-                     val response = stream.bufferedReader().use { it.readText() }
-                     val match = "\"token\":\"([^\"]+)\"".toRegex().find(response)
-                     token = match?.groupValues?.get(1)
-                }
-                
-                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                    rtcEngine?.joinChannel(token, channelName, "Optional Info", uid)
+
+                for (base in baseUrls) {
+                    try {
+                        val urlString = "${base}virtual/agora-token?channelName=$encodedChannel&uid=$uid"
+                        val url = java.net.URL(urlString)
+                        val connection = url.openConnection() as java.net.HttpURLConnection
+                        connection.requestMethod = "GET"
+                        connection.connectTimeout = 4000
+                        connection.readTimeout = 4000
+                        if (!jwtToken.isNullOrBlank()) {
+                            connection.setRequestProperty("Authorization", "Bearer $jwtToken")
+                        }
+                        
+                        if (connection.responseCode == 200) {
+                            val response = connection.inputStream.bufferedReader().use { it.readText() }
+                            // Extract token (may be null in App ID Only mode)
+                            val match = "\"token\"\\s*:\\s*\"([^\"]+)\"".toRegex().find(response)
+                            token = match?.groupValues?.get(1) // remains null if backend returns null
+                            break // success — stop trying other URLs
+                        }
+                    } catch (_: java.io.IOException) {
+                        // Try next URL
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                // Fallback: Try joining without token (App ID Only mode)
-                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                     rtcEngine?.joinChannel(null, channelName, "Fallback", uid)
-                }
+            }
+
+            // Join channel — token is null in App ID Only mode, which Agora accepts
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                rtcEngine?.joinChannel(token, channelName, "Optional Info", uid)
             }
         }
     }

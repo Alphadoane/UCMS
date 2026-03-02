@@ -8,7 +8,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.android.data.network.AllocateLectureRequest
 import com.example.android.data.network.ApiService
+import com.example.android.data.network.CourseOption
+import com.example.android.data.network.LecturerOption
 import com.example.android.data.repository.AdminRepository
 import com.example.android.ui.components.PortalScaffold
 import kotlinx.coroutines.launch
@@ -21,13 +24,13 @@ fun AdminAllocationScreen(onNavigateBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var courses by remember { mutableStateOf<List<ApiService.CourseOption>>(emptyList()) }
-    var lecturers by remember { mutableStateOf<List<ApiService.LecturerOption>>(emptyList()) }
+    var courses by remember { mutableStateOf<List<CourseOption>>(emptyList()) }
+    var lecturers by remember { mutableStateOf<List<LecturerOption>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
     // Form State
-    var selectedCourse by remember { mutableStateOf<ApiService.CourseOption?>(null) }
-    var selectedLecturer by remember { mutableStateOf<ApiService.LecturerOption?>(null) }
+    var selectedCourse by remember { mutableStateOf<CourseOption?>(null) }
+    var selectedLecturer by remember { mutableStateOf<LecturerOption?>(null) }
     var day by remember { mutableStateOf("") }
     var startTime by remember { mutableStateOf("") }
     var endTime by remember { mutableStateOf("") }
@@ -171,7 +174,7 @@ fun AdminAllocationScreen(onNavigateBack: () -> Unit) {
                     onClick = {
                         scope.launch {
                             if (selectedCourse != null && selectedLecturer != null) {
-                                val req = ApiService.AllocateLectureRequest(
+                                val req = AllocateLectureRequest(
                                     course_id = selectedCourse!!.id,
                                     employee_id = selectedLecturer!!.employee_id ?: "",
                                     day = day,

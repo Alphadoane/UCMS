@@ -21,7 +21,15 @@ from .academics import (
     academics_exam_audit,
     academics_academic_leave,
     academics_clearance,
-    staff_courses
+    staff_courses,
+    staff_course_students,
+    staff_course_work,
+    staff_course_materials,
+    get_result_slip, 
+    download_result_slip, 
+    publish_results,
+    courses_available,
+    enroll_courses
 )
 from .finance import (
     finance_balance, 
@@ -38,6 +46,6 @@ from .voting import (
     voting_cast_vote as cast_vote, 
     election_results
 )
-from .virtual_campus import vc_zoom_rooms, get_agora_token
+from .virtual_campus import vc_zoom_rooms, get_agora_token, delete_zoom_room
 from .analytics import get_admin_reports, get_student_analytics
 from .academics import get_result_slip, download_result_slip, publish_results

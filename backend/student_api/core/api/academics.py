@@ -268,6 +268,116 @@ def staff_courses(request):
         logger.error(f"Error fetching staff courses: {e}")
         return Response({"detail": str(e)}, status=500)
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def staff_course_students(request, course_id):
+    """
+    Returns a list of students enrolled in a specific course.
+    """
+    try:
+        lecturer = AuthService.get_lecturer_profile(request.user)
+        if not lecturer:
+            return Response({"detail": "Not a lecturer"}, status=403)
+
+        # Check if course exists
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return Response({"detail": "Course not found"}, status=404)
+
+        # Fetch students registered for this course
+        # Use select_related for efficiency
+        registrations = CourseRegistration.objects.filter(
+            course_id=course_id
+        ).select_related('student__user', 'student__program', 'semester')
+
+        data = []
+        for reg in registrations:
+            student = reg.student
+            data.append({
+                "admission_number": student.admission_number,
+                "full_name": f"{student.user.first_name} {student.user.last_name}",
+                "program": student.program.name,
+                "semester": reg.semester.name,
+                "registered_at": reg.registered_at
+            })
+
+        return Response(data)
+
+    except Exception as e:
+        logger.error(f"Error fetching course students: {e}")
+        return Response({"detail": str(e)}, status=500)
+
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+def staff_course_work(request, course_id):
+    """
+    GET: List assignments and CATs for a specific course.
+    POST: Create a new assignment or CAT for a specific course.
+    """
+    try:
+        lecturer = AuthService.get_lecturer_profile(request.user)
+        if not lecturer:
+            return Response({"detail": "Not a lecturer"}, status=403)
+
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return Response({"detail": "Course not found"}, status=404)
+
+        if request.method == "POST":
+            serializer = CourseWorkSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(lecturer=lecturer, course=course)
+                return Response(serializer.data, status=201)
+            return Response(serializer.errors, status=400)
+
+        # GET
+        category = request.query_params.get('category')
+        works = CourseWork.objects.filter(course=course, lecturer=lecturer)
+        if category:
+            works = works.filter(category=category)
+        
+        serializer = CourseWorkSerializer(works.order_by('-created_at'), many=True)
+        return Response(serializer.data)
+
+    except Exception as e:
+        logger.error(f"Error in staff_course_work: {e}")
+        return Response({"detail": str(e)}, status=500)
+
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+def staff_course_materials(request, course_id):
+    """
+    GET: List learning materials for a specific course.
+    POST: Create a new learning material for a specific course.
+    """
+    try:
+        lecturer = AuthService.get_lecturer_profile(request.user)
+        if not lecturer:
+            return Response({"detail": "Not a lecturer"}, status=403)
+
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return Response({"detail": "Course not found"}, status=404)
+
+        if request.method == "POST":
+            serializer = LearningMaterialSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(lecturer=lecturer, course=course)
+                return Response(serializer.data, status=201)
+            return Response(serializer.errors, status=400)
+
+        # GET
+        materials = LearningMaterial.objects.filter(course=course, lecturer=lecturer).order_by('-created_at')
+        serializer = LearningMaterialSerializer(materials, many=True)
+        return Response(serializer.data)
+
+    except Exception as e:
+        logger.error(f"Error in staff_course_materials: {e}")
+        return Response({"detail": str(e)}, status=500)
+
 from student_api.academics.utils import generate_pdf_slip
 from django.http import HttpResponse
 
@@ -418,4 +528,67 @@ def publish_results(request):
         return Response({"detail": f"Published {count} grades successfully"})
     except Exception as e:
         logger.error(f"Error publishing results: {e}")
+        return Response({"detail": str(e)}, status=500)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def courses_available(request):
+    try:
+        student = AuthService.get_student_profile(request.user)
+        if not student: return Response({"detail": "No profile"}, status=404)
+        
+        # In a real app, this would filter out already registered courses
+        courses = Course.objects.all()
+        # Ensure we return data compatible with AcademicCourse in Kotlin
+        data = []
+        for c in courses:
+            data.append({
+                "id": c.id,
+                "code": c.code,
+                "name": c.name,
+                "credit_units": c.credit_units,
+                "department_name": c.program.department.name if c.program and c.program.department else None,
+                "description": c.description
+            })
+        return Response(data)
+    except Exception as e:
+        logger.error(f"Error fetching available courses: {e}")
+        return Response({"detail": str(e)}, status=500)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def enroll_courses(request):
+    try:
+        student = AuthService.get_student_profile(request.user)
+        if not student: return Response({"detail": "No profile"}, status=404)
+        
+        course_ids = request.data.get('courseIds', [])
+        if not course_ids:
+            return Response({"detail": "No courses provided"}, status=400)
+            
+        semester = Semester.objects.order_by('-end_date').first()
+        if not semester:
+            return Response({"detail": "No active semester"}, status=400)
+            
+        enrolled = []
+        for cid in course_ids:
+            try:
+                course = Course.objects.get(id=cid)
+                reg, created = CourseRegistration.objects.get_or_create(
+                    student=student,
+                    course=course,
+                    semester=semester
+                )
+                if created:
+                    enrolled.append(course.code)
+            except Course.DoesNotExist:
+                pass
+                
+        return Response({
+            "success": True, 
+            "message": f"Successfully enrolled in {len(enrolled)} courses",
+            "enrolled_courses": enrolled
+        })
+    except Exception as e:
+        logger.error(f"Error during enrollment: {e}")
         return Response({"detail": str(e)}, status=500)

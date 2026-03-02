@@ -1,6 +1,9 @@
 package com.example.android.data.repository
 
 import android.content.Context
+import com.example.android.data.network.AdminStatsResponse
+import com.example.android.data.network.AllocateLectureRequest
+import com.example.android.data.network.AllocationOptionsResponse
 import com.example.android.data.network.ApiService
 import com.example.android.data.network.NetworkModule
 
@@ -14,7 +17,7 @@ class AdminRepository(context: Context? = null) {
         NetworkModule.apiInstance ?: throw IllegalStateException("API not initialized. Call StudentRepository.init(context)")
     }
 
-    suspend fun getSystemStats(): Result<ApiService.AdminStatsResponse> {
+    suspend fun getSystemStats(): Result<AdminStatsResponse> {
         return try {
             val response = api.getAdminStats()
             if (response.isSuccessful && response.body() != null) {
@@ -32,7 +35,7 @@ class AdminRepository(context: Context? = null) {
     suspend fun endSemester(semesterId: String): Result<Unit> = Result.success(Unit)
     suspend fun createUnit(code: String, title: String, department: String): Result<String> = Result.success(code)
     suspend fun getUnits(): List<Map<String, Any>> = emptyList()
-    suspend fun getOptions(): Result<ApiService.AllocationOptionsResponse> {
+    suspend fun getOptions(): Result<AllocationOptionsResponse> {
         return try {
             val response = api.getAllocationOptions()
             if (response.isSuccessful && response.body() != null) {
@@ -45,7 +48,7 @@ class AdminRepository(context: Context? = null) {
         }
     }
 
-    suspend fun allocateLecture(req: ApiService.AllocateLectureRequest): Result<Unit> {
+    suspend fun allocateLecture(req: AllocateLectureRequest): Result<Unit> {
         return try {
             val response = api.allocateLecture(req)
             if (response.isSuccessful) {

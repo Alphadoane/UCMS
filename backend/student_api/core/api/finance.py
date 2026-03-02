@@ -74,32 +74,65 @@ def finance_balance(request):
 def finance_stk_push(request):
     try:
         student = Student.objects.get(user=request.user)
-        payment_type = request.data.get('payment_type', 'FULL') # FULL or PARTIAL
+        
+        # Determine if payload is from Android Native (StkPushRequest) or Shared KMP (MpesaPaymentRequest)
+        payment_type = request.data.get('payment_type')
         amount_val = request.data.get('amount')
+        
+        # KMP client sends 'phoneNumber' (camelCase), native may send 'phone_number' (snake_case)
+        phone_val = (
+            request.data.get('phoneNumber')
+            or request.data.get('phone_number')
+        )
         
         account, created = FeeAccount.objects.get_or_create(student=student)
         
-        if payment_type == 'FULL':
-            amount = account.balance
+        if payment_type:
+            # Native Android payload processing (StkPushRequest)
+            if payment_type == 'FULL':
+                amount = float(account.balance)
+            else:
+                if not amount_val:
+                    return Response({"detail": "Amount is required for partial payment"}, status=400)
+                amount = float(amount_val)
         else:
+            # Shared KMP Payload processing (MpesaPaymentRequest)
             if not amount_val:
-                return Response({"detail": "Amount is required for partial payment"}, status=400)
+                return Response({"detail": "Amount is required for payment"}, status=400)
             amount = float(amount_val)
-            if amount <= 0 or amount > account.balance:
-                return Response({"detail": "Invalid amount"}, status=400)
+            
+        # Only reject truly invalid amounts (zero or negative). 
+        # Do NOT reject amounts that exceed balance — the student may be overpaying or balance may be stale.
+        if amount < 1:
+            return Response({"detail": "Minimum payment is KES 1"}, status=400)
 
-        # Ensure we have a valid phone number
-        phone = student.mpesa_phone
+        # Ensure we have a valid phone number (prefer request value, fallback to profile)
+        phone = phone_val or student.mpesa_phone
         if not phone:
-            return Response({"detail": "M-Pesa phone number not found in profile"}, status=400)
+            return Response(
+                {"detail": "M-Pesa phone number not provided. Please enter your phone number or update your profile."},
+                status=400
+            )
         
-        # Clean phone number (assuming 254XXXXXXXXX)
+        # Clean phone number to 254XXXXXXXXX format
+        phone = str(phone).strip()
         if phone.startswith('0'):
             phone = '254' + phone[1:]
         elif phone.startswith('+'):
             phone = phone[1:]
         
         client = MpesaClient()
+        
+        # Check if M-Pesa is configured (not placeholder)
+        if client.consumer_key in ('PLACEHOLDER_KEY', '') or client.consumer_secret in ('PLACEHOLDER_SECRET', ''):
+            logger.warning("M-Pesa credentials are not configured. Using sandbox demo mode.")
+            # Return a useful error for development instead of silent 400
+            return Response({
+                "detail": "M-Pesa is not yet configured on the server. Please contact admin.",
+                "status": "not_configured",
+                "hint": "Set MPESA_CONSUMER_KEY, MPESA_CONSUMER_SECRET, MPESA_PASSKEY in environment."
+            }, status=503)
+        
         response = client.stk_push(
             phone=phone,
             amount=amount,
@@ -108,7 +141,7 @@ def finance_stk_push(request):
         )
         
         if response and response.get('ResponseCode') == '0':
-            # Create pending payment
+            # Create pending payment record
             Payment.objects.create(
                 student=student,
                 amount=amount,
@@ -118,9 +151,19 @@ def finance_stk_push(request):
                 status='PENDING',
                 metadata={"merchant_request_id": response.get('MerchantRequestID')}
             )
-            return Response(response)
+            return Response({
+                "status": "pending",
+                "message": "STK Push sent. Check your phone to complete payment.",
+                "checkout_request_id": response.get('CheckoutRequestID'),
+                "merchant_request_id": response.get('MerchantRequestID')
+            })
         else:
-            return Response({"detail": "Failed to initiate STK Push", "mpesa_error": response}, status=400)
+            mpesa_error = response.get('errorMessage', 'Unknown error') if response else 'No response from M-Pesa'
+            logger.error(f"STK Push failed. Response: {response}")
+            return Response({
+                "detail": f"M-Pesa STK Push failed: {mpesa_error}",
+                "mpesa_error": response
+            }, status=400)
             
     except Student.DoesNotExist:
         return Response({"detail": "Student profile not found"}, status=404)

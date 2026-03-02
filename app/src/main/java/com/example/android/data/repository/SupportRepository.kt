@@ -2,6 +2,7 @@ package com.example.android.data.repository
 
 import android.content.Context
 import com.example.android.data.network.ApiService
+import com.example.android.data.network.CreateTicketRequest
 import com.example.android.data.network.NetworkModule
 import com.example.android.data.model.User
 import com.example.android.data.model.UserRole
@@ -55,7 +56,7 @@ class SupportRepository(context: Context? = null) {
     
     suspend fun createSupportTicket(title: String, description: String, category: String, priority: String): Result<Unit> {
          return try {
-            api.createSupportTicket(ApiService.CreateTicketRequest(title, description, category, priority))
+            api.createSupportTicket(CreateTicketRequest(title, description, category, priority))
             Result.success(Unit)
         } catch (e: Exception) { Result.failure(e) }
     }

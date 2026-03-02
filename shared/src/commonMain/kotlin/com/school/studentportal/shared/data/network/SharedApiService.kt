@@ -561,7 +561,8 @@ class SharedApiService(private val tokenManager: TokenManager) {
             if (response.status.isSuccess()) {
                 Result.success(response.body())
             } else {
-                Result.failure(Exception("Failed to create zoom room"))
+                val errorBody = response.bodyAsText()
+                Result.failure(Exception("Failed to create zoom room: ${response.status} - $errorBody"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -1072,6 +1073,22 @@ class SharedApiService(private val tokenManager: TokenManager) {
                 Result.success(response.body())
             } else {
                 Result.failure(Exception("Failed to fetch emergency alerts"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteZoomRoom(roomId: String): Result<ApiResponse> {
+        return try {
+            val response = client.delete("virtual/zoom-rooms/$roomId") {
+                authHeader()?.let { header("Authorization", it) }
+            }
+            if (response.status.isSuccess()) {
+                Result.success(ApiResponse("Room deleted"))
+            } else {
+                val errorBody = response.bodyAsText()
+                Result.failure(Exception("Failed to delete room: ${response.status} - $errorBody"))
             }
         } catch (e: Exception) {
             Result.failure(e)

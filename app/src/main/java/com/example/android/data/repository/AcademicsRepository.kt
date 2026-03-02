@@ -7,12 +7,20 @@ import com.example.android.data.local.CourseWorkEntity
 import com.example.android.data.local.DatabaseModule
 import com.example.android.data.local.GradeEntity
 import com.example.android.data.network.ApiService
+import com.example.android.data.network.CourseMaterialRequest
+import com.example.android.data.network.Lecture
+import com.example.android.data.network.CourseStudentResponse
+import com.example.android.data.network.CourseWorkRequest
+import com.example.android.data.network.LearningMaterialResponse
 import com.example.android.data.network.NetworkModule
+import com.example.android.data.network.StaffCourseWorkResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
+import java.io.File
 
 /**
  * Academics Repository
@@ -214,7 +222,8 @@ class AcademicsRepository(context: Context) {
          } catch (e: Exception) { emptyList() }
     }
 
-    suspend fun getTimetable(): Result<List<ApiService.Lecture>> {
+
+    suspend fun getTimetable(): Result<List<Lecture>> {
         return try {
             val response = api.getTimetable()
             if (response.isSuccessful && response.body() != null) {
@@ -257,5 +266,69 @@ class AcademicsRepository(context: Context) {
     }
 
     suspend fun createDevAdminProfile(userId: String, email: String) {
+    }
+
+    // Staff / Lecturer Methods
+    suspend fun getStaffCourses(): List<Map<String, Any>> {
+        return try {
+            val response = api.getStaffCourses()
+            if (response.isSuccessful) {
+                response.body()?.map {
+                    mapOf(
+                        "id" to it.id,
+                        "code" to it.code,
+                        "title" to it.title,
+                        "department" to (it.department ?: "-"),
+                        "student_count" to it.student_count
+                    )
+                } ?: emptyList()
+            } else emptyList()
+        } catch (e: Exception) { emptyList() }
+    }
+
+    suspend fun getCourseStudents(courseId: Int): List<CourseStudentResponse> {
+        return try {
+            val response = api.getCourseStudents(courseId)
+            if (response.isSuccessful) response.body() ?: emptyList()
+            else emptyList()
+        } catch (e: Exception) { emptyList() }
+    }
+
+    suspend fun getCourseMaterials(courseId: Int): List<LearningMaterialResponse> {
+        return try {
+            val response = api.getCourseMaterials(courseId)
+            if (response.isSuccessful) response.body() ?: emptyList()
+            else emptyList()
+        } catch (e: Exception) { emptyList() }
+    }
+
+    suspend fun getCourseWork(courseId: Int): List<StaffCourseWorkResponse> {
+        return try {
+            val response = api.getStaffCourseWork(courseId)
+            if (response.isSuccessful) response.body() ?: emptyList()
+            else emptyList()
+        } catch (e: Exception) { emptyList() }
+    }
+
+    suspend fun postCourseMaterial(courseId: Int, title: String, description: String, link: String): Boolean {
+        return try {
+            val body = CourseMaterialRequest(title, description, link.takeIf { it.isNotEmpty() })
+            val response = api.postCourseMaterial(courseId, body)
+            response.isSuccessful
+        } catch (e: Exception) { false }
+    }
+
+    suspend fun postCourseWork(courseId: Int, title: String, description: String, maxMarks: Double, dueDate: String, category: String): Boolean {
+        return try {
+            val body = CourseWorkRequest(
+                title = title,
+                description = description,
+                max_marks = maxMarks,
+                due_date = dueDate,
+                category = category
+            )
+            val response = api.postCourseWork(courseId, body)
+            response.isSuccessful
+        } catch (e: Exception) { false }
     }
 }

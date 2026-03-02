@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from student_api.core.models import User, Role
-from student_api.academics.models import Student, Program, Course, CourseRegistration, Grade, CourseWork, Submission, ExamSession, Lecture, Lecturer
+from student_api.academics.models import (
+    Student, Program, Course, CourseRegistration, Grade, 
+    CourseWork, Submission, ExamSession, Lecture, Lecturer, 
+    LearningMaterial
+)
 from student_api.finance.models import Payment
 from student_api.support.models import Complaint, ComplaintAttachment, ComplaintComment, ComplaintTimeline
 
@@ -128,7 +132,17 @@ class CourseWorkSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CourseWork
-        fields = ['id', 'course', 'course_name', 'lecturer', 'lecturer_name', 'title', 'description', 'max_marks', 'due_date', 'created_at']
+        fields = ['id', 'course', 'course_name', 'lecturer', 'lecturer_name', 'category', 'title', 'description', 'max_marks', 'due_date', 'created_at']
+        read_only_fields = ['course', 'lecturer']
+
+class LearningMaterialSerializer(serializers.ModelSerializer):
+    lecturer_name = serializers.CharField(source='lecturer.user.first_name', read_only=True)
+    course_name = serializers.CharField(source='course.name', read_only=True)
+    
+    class Meta:
+        model = LearningMaterial
+        fields = ['id', 'course', 'course_name', 'lecturer', 'lecturer_name', 'title', 'description', 'file', 'link', 'created_at']
+        read_only_fields = ['course', 'lecturer']
 
 class SubmissionSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source='student.user.first_name', read_only=True)

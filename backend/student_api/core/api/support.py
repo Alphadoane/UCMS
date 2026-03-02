@@ -73,7 +73,25 @@ def support_tickets(request):
 def support_ticket_detail(request, ticket_id):
     try:
         complaint = Complaint.objects.get(id=ticket_id)
-        # TODO: Add permission check to ensure user belongs to this complaint
+        
+        if request.method == "POST":
+            message_text = request.data.get("message")
+            if not message_text:
+                return Response({"detail": "Message is required"}, status=400)
+            from student_api.support.models import ComplaintComment
+            comment = ComplaintComment.objects.create(
+                complaint=complaint,
+                user=request.user,
+                message=message_text
+            )
+            return Response({
+                "id": str(comment.id),
+                "sender_name": f"{request.user.first_name} {request.user.last_name}",
+                "message": comment.message,
+                "created_at": comment.created_at.isoformat(),
+                "is_staff": request.user.is_staff
+            }, status=201)
+            
         serializer = ComplaintSerializer(complaint)
         return Response(serializer.data)
     except Complaint.DoesNotExist:

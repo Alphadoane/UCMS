@@ -27,13 +27,14 @@ def initiate_stk_push(request):
     except Student.DoesNotExist:
         return Response({"error": "Student profile not found"}, status=404)
 
-    phone = request.data.get('phone_number')
+    # Support both Shared app (phoneNumber) and Native app (phone_number)
+    phone = request.data.get('phoneNumber') or request.data.get('phone_number')
     amount = request.data.get('amount')
 
     if not phone or not amount:
         return Response({"error": "Phone number and amount are required"}, status=400)
 
-    formatted_phone = format_phone_number(phone)
+    formatted_phone = format_phone_number(str(phone))
     client = MpesaClient()
     
     # Account reference is Admission Number (Truncate if needed as M-Pesa has limit)
@@ -55,16 +56,18 @@ def initiate_stk_push(request):
                 phone_number=formatted_phone,
                 status='PENDING',
                 checkout_request_id=response.get('CheckoutRequestID'),
-                merchant_request_id=response.get('MerchantRequestID')
+                merchant_request_id=response.get('MerchantRequestID'),
+                provider_reference=response.get('CheckoutRequestID') # Also set provider_reference for logic that uses it
             )
             return Response({
                 "status": "Success", 
                 "message": "STK Push initiated. Check your phone to complete payment.",
-                "checkout_request_id": response.get('CheckoutRequestID')
+                "checkout_request_id": response.get('CheckoutRequestID'),
+                "merchant_request_id": response.get('MerchantRequestID')
             })
         else:
             error_msg = response.get('customerMessage', 'Failed to initiate M-Pesa payment') if response else "Unknown error"
-            return Response({"error": error_msg}, status=400)
+            return Response({"error": error_msg, "mpesa_response": response}, status=400)
             
     except Exception as e:
         import traceback

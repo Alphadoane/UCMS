@@ -249,16 +249,67 @@ fun ZoomRoomsScreen(
                 }
                 
                 items(rooms) { room ->
+                    var showDeleteConfirm by remember { mutableStateOf(false) }
+                    
+                    if (showDeleteConfirm) {
+                        AlertDialog(
+                            onDismissRequest = { showDeleteConfirm = false },
+                            title = { Text("Delete Zoom Room") },
+                            text = { Text("Are you sure you want to delete this zoom room for ${room.course_code}?") },
+                            confirmButton = {
+                                TextButton(
+                                    onClick = {
+                                        showDeleteConfirm = false
+                                        scope.launch {
+                                            val result = repository?.deleteZoomRoom(room.id)
+                                            if (result?.isSuccess == true) {
+                                                snackbarHostState.showSnackbar("Room deleted successfully")
+                                                // Refresh
+                                                isLoading = true
+                                                repository?.getZoomRooms()?.collect {
+                                                    rooms = it
+                                                    isLoading = false
+                                                }
+                                            } else {
+                                                val error = result?.exceptionOrNull()?.message ?: "Failed to delete"
+                                                snackbarHostState.showSnackbar("Error: $error")
+                                            }
+                                        }
+                                    }
+                                ) { Text("Delete", color = Color.Red) }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancel") }
+                            }
+                        )
+                    }
+
                     Card(
                         modifier = Modifier.fillMaxWidth(), 
                         colors = CardDefaults.cardColors(containerColor = Color.White), 
                         elevation = CardDefaults.cardElevation(2.dp)
                     ) {
                         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                            Text("${room.course_code} - ${room.course_title}", fontWeight = FontWeight.Bold)
-                            Text("Title: ${room.host_url ?: room.join_url}", style = MaterialTheme.typography.bodyMedium) // Using URL as title placeholder if needed or actual title
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("${room.course_code} - ${room.course_title}", fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                                if (room.is_host) {
+                                    IconButton(onClick = { showDeleteConfirm = true }) {
+                                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                                    }
+                                }
+                            }
+                            if (!room.title.isNullOrBlank()) {
+                                Text(room.title, style = MaterialTheme.typography.bodyMedium, color = Color.DarkGray)
+                            }
+                            room.start_time?.let {
+                                Text("Starts: $it", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                            }
+                            // Show the Agora channel so the lecturer can share it
+                            val channelName = room.channel_name ?: room.meeting_id ?: room.id
+                            Text("Channel: $channelName", style = MaterialTheme.typography.labelSmall, color = Color(0xFF1D3762))
                             Button(
-                                onClick = { onJoinRoom(room.id) }, 
+                                // Pass Agora channel_name (not DB id) so MeetingScreen joins the right room
+                                onClick = { onJoinRoom(channelName) }, 
                                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
                             ) { 
                                 Text(if (room.is_host) "Start Meeting" else "Join Room") 

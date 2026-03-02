@@ -14,32 +14,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.android.data.repository.AdminRepository
+import com.example.android.data.repository.AcademicsRepository
 import com.example.android.ui.components.PortalScaffold
 import com.example.android.ui.components.DashboardCard
 import com.example.android.ui.components.InfoRow
+import kotlinx.coroutines.launch
 
 @Composable
 fun StaffCoursesScreen(
-    repository: AdminRepository = remember { AdminRepository() },
+    repository: AcademicsRepository,
     onNavigate: (String) -> Unit,
-    onNavigateBack: () -> Unit
+    onBack: () -> Unit
 ) {
     var units by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
-    var userId by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
     
     LaunchedEffect(Unit) {
-         val me = repository.getUserProfile("me")
-         userId = me?.id ?: ""
+        scope.launch {
+            units = repository.getStaffCourses()
+            loading = false
+        }
     }
 
-    LaunchedEffect(Unit) {
-        units = repository.getStaffUnits(userId)
-        loading = false
-    }
-
-    PortalScaffold(title = "My Assigned Courses") {
+    PortalScaffold(title = "My Assigned Courses", onBack = onBack) {
         if (loading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
@@ -54,42 +52,25 @@ fun StaffCoursesScreen(
                 }
 
                 items(units) { unit ->
-                    val unitCode = unit["id"] as? String ?: ""
+                    val unitId = unit["id"]
+                    val unitCode = unit["code"] as? String ?: ""
                     val unitTitle = unit["title"] as? String ?: "Unknown"
 
                     DashboardCard(
                         title = "$unitCode - $unitTitle",
                         icon = Icons.Default.Class,
-                        color = Color(0xFF1565C0)
+                        color = Color(0xFF1565C0),
+                        onClick = { onNavigate("staff_course_detail/$unitId") }
                     ) {
                         InfoRow("Department", unit["department"] as? String ?: "-")
+                        InfoRow("Students", "${unit["student_count"] ?: 0}")
                         
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            // Grade Button
-                            Button(
-                                onClick = { onNavigate("staff_grading/$unitCode") },
-                                modifier = Modifier.weight(1f),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
-                                contentPadding = PaddingValues(0.dp)
-                            ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(Icons.Default.Grade, null)
-                                    Text("Grade")
-                                }
-                            }
-                            // Material Button
-                            Button(
-                                onClick = { onNavigate("staff_content/$unitCode") },
-                                modifier = Modifier.weight(1f),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF6C00)),
-                                contentPadding = PaddingValues(0.dp)
-                            ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(Icons.Default.UploadFile, null)
-                                    Text("Materials")
-                                }
-                            }
-                        }
+                        Text(
+                            "Click to manage students, materials, and coursework",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
                     }
                 }
             }

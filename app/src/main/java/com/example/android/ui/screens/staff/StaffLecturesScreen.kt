@@ -22,7 +22,7 @@ fun StaffLecturesScreen(
     repository: VirtualCampusRepository = remember { VirtualCampusRepository() },
     onNavigateBack: () -> Unit
 ) {
-    var lectures by remember { mutableStateOf<List<com.example.android.data.network.ApiService.Lecture>>(emptyList()) }
+    var lectures by remember { mutableStateOf<List<com.example.android.data.network.Lecture>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {

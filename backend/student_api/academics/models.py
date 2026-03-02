@@ -107,6 +107,12 @@ class Grade(models.Model):
 class CourseWork(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     lecturer = models.ForeignKey(Lecturer, on_delete=models.CASCADE)
+    CATEGORY_CHOICES = [
+        ('assignment', 'Assignment'),
+        ('cat', 'CAT'),
+        ('exam', 'Final Exam'),
+    ]
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='assignment')
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     max_marks = models.DecimalField(max_digits=5, decimal_places=2)
@@ -127,6 +133,18 @@ class Submission(models.Model):
     class Meta:
         db_table = 'submissions'
         unique_together = ('course_work', 'student')
+
+class LearningMaterial(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    lecturer = models.ForeignKey(Lecturer, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    file = models.FileField(upload_to='materials/%Y/%m/', blank=True, null=True)
+    link = models.URLField(max_length=500, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'learning_materials'
 
 # Exams
 class ExamSession(models.Model):

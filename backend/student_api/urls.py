@@ -9,7 +9,9 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # JWT endpoints
     path("api/auth/jwt/login", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/auth/jwt/login/", TokenObtainPairView.as_view()),
     path("api/auth/jwt/refresh", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/auth/jwt/refresh/", TokenRefreshView.as_view()),
     path("api/", include("student_api.core.urls")),
     path("api/admission/", include("admission.urls")),
     path("api/finance/", include("student_api.finance.urls")),

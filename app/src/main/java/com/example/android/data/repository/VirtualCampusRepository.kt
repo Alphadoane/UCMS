@@ -2,6 +2,7 @@ package com.example.android.data.repository
 
 import android.content.Context
 import com.example.android.data.network.ApiService
+import com.example.android.data.network.Lecture
 import com.example.android.data.network.ProfileResponse
 import com.school.studentportal.shared.data.network.SharedApiService
 import com.school.studentportal.shared.data.network.TokenManager
@@ -61,12 +62,12 @@ class VirtualCampusRepository(context: Context? = null) {
         }
     }
 
-    suspend fun getLectures(): List<ApiService.Lecture> {
+    suspend fun getLectures(): List<Lecture> {
         // Try getting staff courses first
         val result = apiService.getStaffCourses()
         if (result.isSuccess) {
             return result.getOrNull()?.map { course ->
-                ApiService.Lecture(
+                Lecture(
                     id = course.id,
                     course_code = course.code,
                     course_title = course.title,
@@ -82,7 +83,7 @@ class VirtualCampusRepository(context: Context? = null) {
         val timetableResult = apiService.getTimetable()
         if (timetableResult.isSuccess) {
              return timetableResult.getOrNull()?.map { entry ->
-                 ApiService.Lecture(
+                 Lecture(
                      id = 0,
                      course_code = entry.course_code,
                      course_title = entry.course_title,

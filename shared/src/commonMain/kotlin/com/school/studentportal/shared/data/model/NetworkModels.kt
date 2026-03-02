@@ -343,10 +343,13 @@ data class ZoomRoom(
     val id: String,
     val course_code: String,
     val course_title: String,
+    val title: String? = null,
     val start_time: String?,
     val join_url: String,
     val host_url: String? = null,
-    val is_host: Boolean = false
+    val is_host: Boolean = false,
+    val channel_name: String? = null,  // Agora channel name to join
+    val meeting_id: String? = null     // Same as channel_name, for compatibility
 )
 
 @Serializable

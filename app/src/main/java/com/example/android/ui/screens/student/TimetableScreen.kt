@@ -19,7 +19,7 @@ import com.example.android.ui.components.PortalScaffold
 fun TimetableScreen() {
     val context = androidx.compose.ui.platform.LocalContext.current
     val repository = remember { com.example.android.data.repository.AcademicsRepository(context) }
-    var lectures by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<List<com.example.android.data.network.ApiService.Lecture>>(emptyList()) }
+    var lectures by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<List<com.example.android.data.network.Lecture>>(emptyList()) }
     var isLoading by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(true) }
     var error by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
 
