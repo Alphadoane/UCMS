@@ -188,6 +188,21 @@ class SharedApiService(private val tokenManager: TokenManager) {
         }
     }
 
+    suspend fun getEnrolledCourses(): Result<List<AcademicCourse>> {
+        return try {
+            val response = client.get("academics/courses/enrolled") {
+                authHeader()?.let { header("Authorization", it) }
+            }
+            if (response.status.isSuccess()) {
+                Result.success(response.body())
+            } else {
+                Result.failure(Exception("Failed to fetch enrolled courses"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun enrollCourses(courseIds: List<Int>): Result<EnrollmentResponse> {
         return try {
             val response = client.post("academics/enroll") {
@@ -1077,6 +1092,26 @@ class SharedApiService(private val tokenManager: TokenManager) {
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    suspend fun confirmAppointment(id: Int, notes: String): Result<Unit> {
+        return try {
+            val response = client.post("support/appointments/$id/confirm/") {
+                contentType(ContentType.Application.Json)
+                authHeader()?.let { header("Authorization", it) }
+                setBody(mapOf("admin_notes" to notes))
+            }
+            if (response.status.isSuccess()) Result.success(Unit) else Result.failure(Exception("Failed to confirm"))
+        } catch (e: Exception) { Result.failure(e) }
+    }
+
+    suspend fun resolveAlert(id: Int): Result<Unit> {
+        return try {
+            val response = client.post("support/emergency/$id/resolve/") {
+                authHeader()?.let { header("Authorization", it) }
+            }
+            if (response.status.isSuccess()) Result.success(Unit) else Result.failure(Exception("Failed to resolve"))
+        } catch (e: Exception) { Result.failure(e) }
     }
 
     suspend fun deleteZoomRoom(roomId: String): Result<ApiResponse> {

@@ -37,11 +37,14 @@ from .finance import (
     finance_stk_push,
     finance_mpesa_callback,
     finance_paystack_initialize,
-    finance_paystack_webhook
+    finance_paystack_webhook,
+    admin_finance_students,
+    admin_student_transactions,
+    admin_all_transactions
 )
 from .support import support_tickets, support_ticket_detail, update_ticket_status
 from .voting import (
-    voting_elections as elections_list, 
+    voting_elections, 
     add_candidate, 
     voting_cast_vote as cast_vote, 
     election_results

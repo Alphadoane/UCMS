@@ -54,4 +54,12 @@ class SupportRepository(private val apiService: SharedApiService) {
         apiService.sendEmergencyAlert(latitude, longitude)
 
     suspend fun getEmergencyAlerts(): Result<List<EmergencyAlert>> = apiService.getEmergencyAlerts()
+
+    suspend fun confirmAppointment(id: Int, notes: String): Result<Unit> {
+        return apiService.confirmAppointment(id, notes)
+    }
+
+    suspend fun resolveAlert(id: Int): Result<Unit> {
+        return apiService.resolveAlert(id)
+    }
 }

@@ -6,10 +6,34 @@ from student_api.voting.models import Election, Candidate, Vote
 from student_api.academics.models import Student
 from student_api.core.serializers_voting import ElectionSerializer, CandidateSerializer, VoteSerializer
 
-@api_view(["GET"])
+@api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
 def voting_elections(request):
-    elections = Election.objects.filter(is_active=True)
+    if request.method == "POST":
+        if not request.user.is_staff and not request.user.is_superuser:
+            return Response({"error": "Unauthorized"}, status=403)
+            
+        title = request.data.get("title")
+        description = request.data.get("description", "")
+        end_date = request.data.get("end_date")
+        
+        if not title:
+            return Response({"error": "Title required"}, status=400)
+            
+        election = Election.objects.create(
+            title=title, 
+            description=description,
+            end_date=end_date,
+            is_active=True
+        )
+        serializer = ElectionSerializer(election, context={'request': request})
+        return Response(serializer.data, status=201)
+        
+    # GET Logic
+    if request.user.is_staff or request.user.is_superuser:
+        elections = Election.objects.all()
+    else:
+        elections = Election.objects.filter(is_active=True)
     serializer = ElectionSerializer(elections, many=True, context={'request': request})
     return Response({"items": serializer.data})
 

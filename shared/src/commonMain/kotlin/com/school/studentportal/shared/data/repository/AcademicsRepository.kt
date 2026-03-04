@@ -11,6 +11,9 @@ class AcademicsRepository(private val api: SharedApiService) {
     private val _availableCourses = MutableStateFlow<List<AcademicCourse>>(emptyList())
     val availableCourses: StateFlow<List<AcademicCourse>> = _availableCourses.asStateFlow()
 
+    private val _enrolledCourses = MutableStateFlow<List<AcademicCourse>>(emptyList())
+    val enrolledCourses: StateFlow<List<AcademicCourse>> = _enrolledCourses.asStateFlow()
+
     private val _examResults = MutableStateFlow<List<ExamResult>>(emptyList())
     val examResults: StateFlow<List<ExamResult>> = _examResults.asStateFlow()
 
@@ -21,6 +24,14 @@ class AcademicsRepository(private val api: SharedApiService) {
         val result = api.getAvailableCourses()
         if (result.isSuccess) {
             _availableCourses.value = result.getOrNull() ?: emptyList()
+        }
+        return result
+    }
+
+    suspend fun refreshEnrolledCourses(): Result<List<AcademicCourse>> {
+        val result = api.getEnrolledCourses()
+        if (result.isSuccess) {
+            _enrolledCourses.value = result.getOrNull() ?: emptyList()
         }
         return result
     }

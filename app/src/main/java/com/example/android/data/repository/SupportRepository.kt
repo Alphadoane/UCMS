@@ -54,9 +54,9 @@ class SupportRepository(context: Context? = null) {
         } catch (e: Exception) { emptyList() }
     }
     
-    suspend fun createSupportTicket(title: String, description: String, category: String, priority: String): Result<Unit> {
+    suspend fun createSupportTicket(title: String, description: String, category: String, priority: String, courseId: Int? = null): Result<Unit> {
          return try {
-            api.createSupportTicket(CreateTicketRequest(title, description, category, priority))
+            api.createSupportTicket(CreateTicketRequest(title, description, category, priority, courseId))
             Result.success(Unit)
         } catch (e: Exception) { Result.failure(e) }
     }
@@ -122,4 +122,60 @@ class SupportRepository(context: Context? = null) {
     suspend fun diagnoseUser(userId: String): String {
         return "SQL Backend Active"
     } // Mock for debugging
+
+    // Health & Emergency Methods
+    suspend fun getHealthTips(): Result<List<com.example.android.data.network.HealthTip>> {
+        return try {
+            val response = api.getHealthTips()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.success(emptyList()) // Fallback
+            }
+        } catch (e: Exception) { Result.failure(e) }
+    }
+
+    suspend fun bookAppointment(type: String, reason: String): Result<com.example.android.data.network.AppointmentResponse> {
+        return try {
+            val date = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())
+            val response = api.bookAppointment(com.example.android.data.network.AppointmentRequest(type, reason, date))
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Failed to book appointment"))
+            }
+        } catch (e: Exception) { Result.failure(e) }
+    }
+
+    suspend fun sendEmergencyAlert(lat: Double, lng: Double, message: String): Result<Unit> {
+        return try {
+            val response = api.sendEmergencyAlert(com.example.android.data.network.EmergencyAlertRequest(lat, lng, message))
+            if (response.isSuccessful) Result.success(Unit) else Result.failure(Exception("Failed to send alert"))
+        } catch (e: Exception) { Result.failure(e) }
+    }
+
+    suspend fun getAdminHealthStats(): Result<com.example.android.data.network.AdminHealthStatsResponse> {
+        return try {
+            val response = api.getAdminHealthStats()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Failed to load health stats"))
+            }
+        } catch (e: Exception) { Result.failure(e) }
+    }
+
+    suspend fun confirmAppointment(id: Int, notes: String): Result<Unit> {
+        return try {
+            val response = api.confirmAppointment(id, mapOf("admin_notes" to notes))
+            if (response.isSuccessful) Result.success(Unit) else Result.failure(Exception("Failed to confirm"))
+        } catch (e: Exception) { Result.failure(e) }
+    }
+
+    suspend fun resolveAlert(id: Int): Result<Unit> {
+        return try {
+            val response = api.resolveAlert(id)
+            if (response.isSuccessful) Result.success(Unit) else Result.failure(Exception("Failed to resolve alert"))
+        } catch (e: Exception) { Result.failure(e) }
+    }
 }

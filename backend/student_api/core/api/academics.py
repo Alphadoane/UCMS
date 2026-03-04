@@ -592,3 +592,31 @@ def enroll_courses(request):
     except Exception as e:
         logger.error(f"Error during enrollment: {e}")
         return Response({"detail": str(e)}, status=500)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def student_enrolled_courses(request):
+    try:
+        student = AuthService.get_student_profile(request.user)
+        if not student: return Response({"detail": "No student profile found"}, status=404)
+        
+        # Fetch current semester registrations
+        semester = Semester.objects.order_by('-end_date').first()
+        registrations = CourseRegistration.objects.filter(
+            student=student,
+            semester=semester
+        ).select_related('course', 'course__program__department')
+        
+        data = []
+        for reg in registrations:
+            c = reg.course
+            data.append({
+                "id": c.id,
+                "code": c.code,
+                "name": c.name,
+                "credit_units": c.credit_units,
+                "department_name": c.program.department.name if c.program and c.program.department else None,
+            })
+        return Response(data)
+    except Exception as e:
+        logger.error(f"Error fetching enrolled courses: {e}")
+        return Response({"detail": str(e)}, status=500)

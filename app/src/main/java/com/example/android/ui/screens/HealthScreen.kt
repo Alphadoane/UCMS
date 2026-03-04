@@ -28,23 +28,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.example.android.data.repository.SupportRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HealthScreen(onNavigateBack: () -> Unit) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val repository = remember { SupportRepository(context) }
+    
     var showBookingDialog by remember { mutableStateOf(false) }
+    var bookingType by remember { mutableStateOf("HEALTH") }
+    
+    var healthTips by remember { mutableStateOf<List<com.example.android.data.network.HealthTip>>(emptyList()) }
+    var isLoadingTips by remember { mutableStateOf(true) }
 
-    // Permission Launcher for Call
-    val callPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:999")) // Replace 999 with actual hotline
-            context.startActivity(intent)
-        } else {
-            Toast.makeText(context, "Permission denied to make calls", Toast.LENGTH_SHORT).show()
+    LaunchedEffect(Unit) {
+        repository.getHealthTips().onSuccess { tips ->
+            healthTips = tips
+            isLoadingTips = false
+        }.onFailure { _ ->
+            isLoadingTips = false
         }
     }
 
@@ -90,14 +95,15 @@ fun HealthScreen(onNavigateBack: () -> Unit) {
                     }
                     Button(
                         onClick = {
-                            callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+                            val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:999"))
+                            context.startActivity(intent)
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                         shape = CircleShape
                     ) {
                         Icon(Icons.Default.Call, null, tint = MaterialTheme.colorScheme.tertiary)
                         Spacer(Modifier.width(8.dp))
-                        Text("CALL NOW", color = MaterialTheme.colorScheme.tertiary, fontWeight = FontWeight.Bold)
+                        Text("DIAL", color = MaterialTheme.colorScheme.tertiary, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -107,11 +113,14 @@ fun HealthScreen(onNavigateBack: () -> Unit) {
             
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 HealthServiceCard(
-                    title = "Book Appointment",
+                    title = "General Visit",
                     icon = Icons.Default.CalendarMonth,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.weight(1f),
-                    onClick = { showBookingDialog = true }
+                    onClick = { 
+                        bookingType = "HEALTH"
+                        showBookingDialog = true 
+                    }
                 )
                 HealthServiceCard(
                     title = "Medical Records",
@@ -125,39 +134,73 @@ fun HealthScreen(onNavigateBack: () -> Unit) {
                 HealthServiceCard(
                     title = "Mental Health",
                     icon = Icons.Default.SelfImprovement,
-                    color = Color(0xFF4CAF50), // Keeping a distinct green for wellness
+                    color = Color(0xFF4CAF50),
                     modifier = Modifier.weight(1f),
-                    onClick = { Toast.makeText(context, "Counseling unavailable", Toast.LENGTH_SHORT).show() }
+                    onClick = { 
+                        bookingType = "THERAPY"
+                        showBookingDialog = true 
+                    }
                 )
                 HealthServiceCard(
                     title = "Ambulance",
                     icon = Icons.Default.MedicalServices,
-                    color = Color(0xFF455A64),
+                    color = Color(0xFFE91E63),
                     modifier = Modifier.weight(1f),
-                    onClick = { Toast.makeText(context, "Contact Security for Ambulance", Toast.LENGTH_LONG).show() }
+                    onClick = { 
+                        val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:911"))
+                        context.startActivity(intent)
+                    }
                 )
             }
 
             // 3. Health Tips
-            Text("Daily Tip", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(2.dp)
-            ) {
-                Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.WaterDrop, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
-                    Spacer(Modifier.width(16.dp))
-                    Column {
-                        Text("Stay Hydrated", fontWeight = FontWeight.Bold)
-                        Text("Drink at least 8 glasses of water today for better focus.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
-                    }
+            Text("Daily Health Tips", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+            
+            if (isLoadingTips) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            } else if (healthTips.isEmpty()) {
+                HealthTipItem(
+                    title = "Stay Hydrated",
+                    desc = "Drink at least 8 glasses of water today for better focus.",
+                    icon = Icons.Default.WaterDrop
+                )
+            } else {
+                healthTips.forEach { tip ->
+                    HealthTipItem(
+                        title = tip.title,
+                        desc = tip.description,
+                        icon = Icons.Default.TipsAndUpdates
+                    )
+                    Spacer(Modifier.height(8.dp))
                 }
             }
         }
     }
 
     if (showBookingDialog) {
-        BookingDialog(onDismiss = { showBookingDialog = false })
+        BookingDialog(
+            type = bookingType,
+            repository = repository,
+            onDismiss = { showBookingDialog = false }
+        )
+    }
+}
+
+@Composable
+fun HealthTipItem(title: String, desc: String, icon: ImageVector) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
+            Spacer(Modifier.width(16.dp))
+            Column {
+                Text(title, fontWeight = FontWeight.Bold)
+                Text(desc, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+            }
+        }
     }
 }
 
@@ -189,18 +232,20 @@ fun HealthServiceCard(title: String, icon: ImageVector, color: Color, modifier: 
 }
 
 @Composable
-fun BookingDialog(onDismiss: () -> Unit) {
+fun BookingDialog(type: String, repository: SupportRepository, onDismiss: () -> Unit) {
     var reason by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
+    val title = if (type == "THERAPY") "Book Therapy Session" else "Book Clinic Appointment"
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Book Appointment") },
+        title = { Text(title) },
         text = {
             Column {
-                Text("Describe your symptoms or reason for visit:")
+                Text("Describe your symptoms or reason for the session:")
                 OutlinedTextField(
                     value = reason,
                     onValueChange = { reason = it },
@@ -214,11 +259,15 @@ fun BookingDialog(onDismiss: () -> Unit) {
                 onClick = {
                     scope.launch {
                         isLoading = true
-                        // Simulate API call
-                        delay(2000)
+                        repository.bookAppointment(type, reason)
+                            .onSuccess { _ ->
+                                Toast.makeText(context, "Request Sent Successfully!", Toast.LENGTH_LONG).show()
+                                onDismiss()
+                            }
+                            .onFailure { error ->
+                                Toast.makeText(context, "Booking Failed: ${error.message}", Toast.LENGTH_LONG).show()
+                            }
                         isLoading = false
-                        Toast.makeText(context, "Appointment Request Sent!", Toast.LENGTH_LONG).show()
-                        onDismiss()
                     }
                 },
                 enabled = !isLoading && reason.isNotBlank()

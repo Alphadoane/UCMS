@@ -1,5 +1,5 @@
 from rest_framework import viewsets, status, permissions
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from django.utils import timezone
 from student_api.academics.models import Student
@@ -18,14 +18,31 @@ class AppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
         fields = '__all__'
-        read_only_fields = ['status', 'admin_notes', 'created_at']
+        read_only_fields = ['student', 'status', 'admin_notes', 'created_at']
 
 class EmergencyAlertSerializer(serializers.ModelSerializer):
     student_name = serializers.ReadOnlyField(source='student.full_name')
     class Meta:
         model = EmergencyAlert
         fields = '__all__'
-        read_only_fields = ['status', 'created_at']
+        read_only_fields = ['student', 'status', 'created_at']
+
+# Admin Views
+@api_view(['GET'])
+@permission_classes([permissions.IsAdminUser])
+def admin_health_stats(request):
+    try:
+        active_alerts = EmergencyAlert.objects.filter(status='ACTIVE')
+        pending_appointments = Appointment.objects.filter(status='PENDING')
+        
+        return Response({
+            'active_alerts_count': active_alerts.count(),
+            'pending_appointments_count': pending_appointments.count(),
+            'active_alerts': EmergencyAlertSerializer(active_alerts, many=True).data,
+            'pending_appointments': AppointmentSerializer(pending_appointments, many=True).data
+        })
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # ViewSets
 class CampusLifeViewSet(viewsets.ModelViewSet):
@@ -39,6 +56,12 @@ class CampusLifeViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    @action(detail=False, methods=['get'])
+    def health_tips(self, request):
+        tips = CampusLifeContent.objects.filter(category='Health').order_by('-created_at')[:10]
+        serializer = self.get_serializer(tips, many=True)
+        return Response(serializer.data)
 
 class AppointmentViewSet(viewsets.ModelViewSet):
     queryset = Appointment.objects.all()

@@ -25,13 +25,20 @@ def support_tickets(request):
         description = request.data.get('description')
         priority = request.data.get('priority', 'medium')
         
-        if not course_id or not description:
-            return Response({"detail": "course_id and description are required"}, status=400)
+        if not description:
+            return Response({"detail": "description is required"}, status=400)
             
-        try:
-            course = Course.objects.get(id=course_id)
-        except Course.DoesNotExist:
-            return Response({"detail": "Invalid course_id"}, status=400)
+        if not course_id:
+            # Fallback to first course if not provided (for older clients)
+            first_course = Course.objects.first()
+            if not first_course:
+                return Response({"detail": "No courses available in system"}, status=400)
+            course = first_course
+        else:
+            try:
+                course = Course.objects.get(id=course_id)
+            except (Course.DoesNotExist, ValueError):
+                return Response({"detail": "Invalid course_id"}, status=400)
             
         # Create Complaint
         complaint = Complaint.objects.create(
@@ -61,7 +68,7 @@ def support_tickets(request):
         complaints = Complaint.objects.filter(student=user.student)
     elif hasattr(user, 'lecturer'):
         # Show complaints for courses this lecturer teaches
-        complaints = Complaint.objects.filter(course__lecture__lecturer=user.lecturer).distinct()
+        complaints = Complaint.objects.filter(course__lecturer=user.lecturer).distinct()
     else: # Admin (is_staff or is_superuser)
         complaints = Complaint.objects.all()
         

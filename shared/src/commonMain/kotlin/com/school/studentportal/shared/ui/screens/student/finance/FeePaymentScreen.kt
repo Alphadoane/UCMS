@@ -3,6 +3,8 @@ package com.school.studentportal.shared.ui.screens.student.finance
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -60,7 +62,8 @@ fun FeePaymentScreen(
         navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, null) } },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        val scrollState = rememberScrollState()
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(scrollState)) {
             // Balance Card (Same as before)
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color(0xFF1D3762)),
@@ -144,7 +147,7 @@ fun FeePaymentScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {

@@ -62,6 +62,32 @@ class AdminRepository(context: Context? = null) {
     }
 
     suspend fun assignLecturerToUnit(unitCode: String, lecturerId: String, lecturerName: String): Result<Unit> = Result.success(Unit)
+    suspend fun getFinanceStudents(query: String? = null): Result<List<com.school.studentportal.shared.data.model.StudentFinanceDto>> {
+        return try {
+            val response = api.getFinanceStudents(query)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Failed to fetch students"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getStudentTransactions(studentId: String): Result<com.school.studentportal.shared.data.model.StudentTransactionsResponse> {
+        return try {
+            val response = api.getStudentTransactions(studentId)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Failed to fetch student transactions"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun getAllTransactions(limit: Long = 50): List<Map<String, Any>> = emptyList()
     suspend fun verifyTransaction(transactionId: String, adminId: String): Result<Unit> = Result.success(Unit)
     suspend fun logAudit(userId: String, action: String, details: String) {}

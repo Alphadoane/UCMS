@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.android.data.repository.SupportRepository
 import com.example.android.data.repository.AuthRepository
+import com.example.android.data.repository.AcademicsRepository
 import com.example.android.data.model.Ticket
 import com.example.android.data.model.TicketMessage
 import kotlinx.coroutines.launch
@@ -284,29 +285,78 @@ fun CreateTicketDialog(
     onDismiss: () -> Unit,
     onSuccess: () -> Unit
 ) {
-    var title by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val academicsRepo = remember { AcademicsRepository(context) }
+    var courses by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
+    var selectedCourse by remember { mutableStateOf<Map<String, Any>?>(null) }
     var desc by remember { mutableStateOf("") }
-    var cat by remember { mutableStateOf("Academic") }
+    var isExpanded by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    
+    LaunchedEffect(Unit) {
+        val enrolled = academicsRepo.getCourseRegistration("me")
+        courses = enrolled
+        if (enrolled.isNotEmpty()) selectedCourse = enrolled.first()
+    }
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("New Ticket") },
+        title = { Text("Lodge a Complaint") },
         text = {
-            Column {
-                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Title") })
-                OutlinedTextField(value = desc, onValueChange = { desc = it }, label = { Text("Description") })
-                // Category simplified
+            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Select Course:", style = MaterialTheme.typography.labelMedium)
+                Box {
+                    OutlinedButton(
+                        onClick = { isExpanded = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(selectedCourse?.get("course_name") as? String ?: "Select a course")
+                    }
+                    DropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded = false }) {
+                        courses.forEach { course ->
+                            DropdownMenuItem(
+                                text = { Text(course["course_name"] as String) },
+                                onClick = {
+                                    selectedCourse = course
+                                    isExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+                
+                OutlinedTextField(
+                    value = desc, 
+                    onValueChange = { desc = it }, 
+                    label = { Text("Description") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3
+                )
             }
         },
         confirmButton = {
-            Button(onClick = {
-                scope.launch {
-                    repository.createSupportTicket(title, desc, cat, "medium")
-                    onSuccess()
-                    onDismiss()
-                }
-            }) { Text("Submit") }
+            Button(
+                onClick = {
+                    scope.launch {
+                        val courseId = selectedCourse?.get("id") as? Int // Adjust based on actual course ID type
+                        // Note: If ID is not in the map, we need to ensure the Map contains the DB ID.
+                        // For now, using description as title for backward compat in serializer.
+                        repository.createSupportTicket(
+                            title = selectedCourse?.get("course_name") as? String ?: "Academic",
+                            description = desc,
+                            category = "Academic",
+                            priority = "medium",
+                            courseId = courseId ?: 1 // Fallback to 1 if not found
+                        )
+                        onSuccess()
+                        onDismiss()
+                    }
+                },
+                enabled = desc.isNotBlank()
+            ) { Text("Submit") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
         }
     )
 }

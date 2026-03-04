@@ -1,8 +1,11 @@
-from django.urls import path
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
+from .api import academics
 from student_api.finance import views as finance_views
-from student_api.support.api.health_campus import CampusLifeViewSet, AppointmentViewSet, EmergencyAlertViewSet
+from student_api.support.api.health_campus import (
+    CampusLifeViewSet, AppointmentViewSet, EmergencyAlertViewSet, admin_health_stats
+)
 
 router = DefaultRouter()
 router.register(r'support/campus-life', CampusLifeViewSet, basename='campus-life')
@@ -26,6 +29,7 @@ urlpatterns = [
     path("academics/course-registration", views.academics_course_registration),
     path("academics/course-registration/", views.academics_course_registration),
     path("academics/courses/available", views.courses_available),
+    path("academics/courses/enrolled", academics.student_enrolled_courses),
     path("academics/enroll", views.enroll_courses),
     path("academics/course-work", views.academics_course_work),
     path("academics/course-work/", views.academics_course_work),
@@ -52,6 +56,8 @@ urlpatterns = [
     path("finance/paystack-initialize", views.finance_paystack_initialize),
     path("finance/paystack-webhook", views.finance_paystack_webhook),
     path("admin/finance/transactions", views.admin_all_transactions),
+    path("admin/finance/students", views.admin_finance_students),
+    path("admin/finance/transactions/<uuid:student_id>", views.admin_student_transactions),
     
     # Support
     path("support/tickets", views.support_tickets),
@@ -93,8 +99,8 @@ urlpatterns = [
     path("academics/clearance/", views.academics_clearance),
     
     # Voting
-    path("voting/elections", views.elections_list),
-    path("voting/elections/", views.elections_list),
+    path("voting/elections", views.voting_elections),
+    path("voting/elections/", views.voting_elections),
     path("voting/elections/<int:election_id>/candidates", views.add_candidate),
     path("voting/elections/<int:election_id>/candidates/", views.add_candidate),
     path("voting/elections/<int:election_id>/vote", views.cast_vote),
@@ -125,6 +131,12 @@ urlpatterns = [
     
     # User Management
     path("users", views.admin_users_list),
+    
+    # Health & Emergency Admin
+    path("admin/health/stats", admin_health_stats),
+    
+    # Library
+    path("", include("student_api.library.urls")),
 ]
 
 urlpatterns += router.urls

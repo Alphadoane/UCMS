@@ -324,6 +324,72 @@ def finance_statement(request):
 
 @api_view(["GET"])
 @permission_classes([IsAdminUser])
+def admin_finance_students(request):
+    """
+    Admin endpoint to list students with their balances and basic info.
+    Supports searching via 'q' query param.
+    """
+    query = request.GET.get('q', '')
+    students = Student.objects.all()
+    
+    if query:
+        from django.db.models import Q
+        students = students.filter(
+            Q(user__first_name__icontains=query) | 
+            Q(user__last_name__icontains=query) | 
+            Q(admission_number__icontains=query)
+        )
+
+    data = []
+    for student in students:
+        account, _ = FeeAccount.objects.get_or_create(student=student)
+        data.append({
+            "id": str(student.user.id),
+            "admission_number": student.admission_number,
+            "full_name": f"{student.user.first_name} {student.user.last_name}",
+            "balance": float(account.balance),
+            "status": student.status
+        })
+
+    return Response(data)
+
+@api_view(["GET"])
+@permission_classes([IsAdminUser])
+def admin_student_transactions(request, student_id):
+    """
+    Admin endpoint to view all transactions for a specific student.
+    """
+    try:
+        # student_id is user_id
+        student = Student.objects.get(user_id=student_id)
+        payments = Payment.objects.filter(student=student).order_by('-paid_at')
+        
+        transactions = []
+        for p in payments:
+            transactions.append({
+                "id": p.id,
+                "amount": float(p.amount),
+                "status": p.status,
+                "payment_method": p.payment_method,
+                "payment_rail": p.payment_rail,
+                "reference": p.mpesa_receipt_number or p.provider_reference or "N/A",
+                "date": p.paid_at.strftime('%Y-%m-%d %H:%M:%S') if p.paid_at else "N/A",
+                "phone": p.phone_number or "N/A"
+            })
+
+        return Response({
+            "student_name": f"{student.user.first_name} {student.user.last_name}",
+            "admission_number": student.admission_number,
+            "transactions": transactions
+        })
+    except Student.DoesNotExist:
+        return Response({"detail": "Student not found"}, status=404)
+    except Exception as e:
+        logger.error(f"Error fetching student transactions: {str(e)}")
+        return Response({"detail": str(e)}, status=500)
+
+@api_view(["GET"])
+@permission_classes([IsAdminUser])
 def admin_all_transactions(request):
     """
     Admin endpoint to view all transactions (M-Pesa, Bank, etc.)

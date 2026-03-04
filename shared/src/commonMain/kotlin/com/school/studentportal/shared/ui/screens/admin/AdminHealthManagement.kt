@@ -89,11 +89,39 @@ fun AdminHealthManagement(repository: SupportRepository, onBack: () -> Unit) {
                 ) {
                     if (selectedTab == 0) {
                         items(alerts) { alert ->
-                            EmergencyAlertCard(alert)
+                            EmergencyAlertCard(
+                                alert = alert,
+                                onResolve = {
+                                    scope.launch {
+                                        alert.id?.let { id ->
+                                            repository.resolveAlert(id).onSuccess {
+                                                snackbarHostState.showSnackbar("Alert resolved")
+                                                refresh()
+                                            }.onFailure {
+                                                snackbarHostState.showSnackbar("Error: ${it.message}")
+                                            }
+                                        }
+                                    }
+                                }
+                            )
                         }
                     } else {
                         items(appointments) { appointment ->
-                            AdminAppointmentItem(appointment)
+                            AdminAppointmentItem(
+                                appointment = appointment,
+                                onConfirm = {
+                                    scope.launch {
+                                        appointment.id?.let { id ->
+                                            repository.confirmAppointment(id, "Appointment confirmed by admin").onSuccess {
+                                                snackbarHostState.showSnackbar("Appointment confirmed")
+                                                refresh()
+                                            }.onFailure {
+                                                snackbarHostState.showSnackbar("Error: ${it.message}")
+                                            }
+                                        }
+                                    }
+                                }
+                            )
                         }
                     }
                 }
@@ -103,7 +131,7 @@ fun AdminHealthManagement(repository: SupportRepository, onBack: () -> Unit) {
 }
 
 @Composable
-fun EmergencyAlertCard(alert: EmergencyAlert) {
+fun EmergencyAlertCard(alert: EmergencyAlert, onResolve: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -134,8 +162,10 @@ fun EmergencyAlertCard(alert: EmergencyAlert) {
                 Button(onClick = { /* Open Map */ }, modifier = Modifier.weight(1f)) {
                     Text("View on Map")
                 }
-                OutlinedButton(onClick = { /* Mark Resolved */ }, modifier = Modifier.weight(1f)) {
-                    Text("Resolve")
+                if (alert.status == "ACTIVE") {
+                    OutlinedButton(onClick = onResolve, modifier = Modifier.weight(1f)) {
+                        Text("Resolve")
+                    }
                 }
             }
         }
@@ -143,7 +173,7 @@ fun EmergencyAlertCard(alert: EmergencyAlert) {
 }
 
 @Composable
-fun AdminAppointmentItem(appointment: Appointment) {
+fun AdminAppointmentItem(appointment: Appointment, onConfirm: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -164,8 +194,7 @@ fun AdminAppointmentItem(appointment: Appointment) {
             if (appointment.status == "PENDING") {
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { /* Confirm */ }) { Text("Confirm") }
-                    OutlinedButton(onClick = { /* Cancel */ }) { Text("Cancel") }
+                    Button(onClick = onConfirm) { Text("Confirm") }
                 }
             }
         }

@@ -10,6 +10,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 import com.example.android.data.model.Election
 import com.example.android.data.model.ElectionRequest
@@ -60,21 +62,48 @@ fun AdminElectionScreen(
                      elevation = CardDefaults.cardElevation(2.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(election.title, style = MaterialTheme.typography.titleMedium)
-                        Text(if (election.is_active) "Active" else "Closed", color = if (election.is_active) Color.Green else Color.Gray)
-                        
-                        Divider(modifier = Modifier.padding(vertical = 8.dp))
-                        
-                        Text("Candidates: ${election.candidates.size}")
-                        election.candidates.forEach { 
-                            Text("- ${it.name}")
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(election.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Surface(
+                                color = if (election.is_active) Color(0xFFE8F5E9) else Color(0xFFF5F5F5),
+                                shape = RoundedCornerShape(4.dp)
+                            ) {
+                                Text(
+                                    text = if (election.is_active) "ACTIVE" else "CLOSED",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (election.is_active) Color(0xFF2E7D32) else Color.Gray
+                                )
+                            }
                         }
                         
-                        Button(
-                            onClick = { showAddCandidateDialog = election },
-                            modifier = Modifier.padding(top = 8.dp)
-                        ) {
-                            Text("Add Candidate")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(election.description, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                        
+                        Divider(modifier = Modifier.padding(vertical = 12.dp))
+                        
+                        Text("Candidates (${election.candidates.size})", style = MaterialTheme.typography.labelLarge)
+                        if (election.candidates.isEmpty()) {
+                            Text("No candidates added yet", style = MaterialTheme.typography.bodySmall, color = Color.LightGray)
+                        } else {
+                            election.candidates.forEach { 
+                                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Person, null, modifier = Modifier.size(16.dp), tint = Color.Gray)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(it.name, style = MaterialTheme.typography.bodyMedium)
+                                }
+                            }
+                        }
+                        
+                        Row(modifier = Modifier.padding(top = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(
+                                onClick = { showAddCandidateDialog = election },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE65100))
+                            ) {
+                                Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Add Candidate")
+                            }
                         }
                     }
                 }

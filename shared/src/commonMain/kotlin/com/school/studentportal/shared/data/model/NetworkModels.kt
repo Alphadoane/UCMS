@@ -241,9 +241,9 @@ data class UpdateComplaintStatusRequest(val status: String)
 data class AcademicCourse(
     val id: Int,
     val code: String,
-    val title: String,
+    @SerialName("name") val title: String,
     val description: String? = null,
-    val credits: Int,
+    @SerialName("credit_units") val credits: Int,
     val is_enrolled: Boolean = false,
     val semester: String? = null
 )
@@ -410,6 +410,22 @@ data class FinanceTransaction(
     val payment_method: String,
     val date: String,
     val receipt: String
+)
+
+@Serializable
+data class StudentFinanceDto(
+    val id: String,
+    val admission_number: String,
+    val full_name: String,
+    val balance: Double,
+    val status: String
+)
+
+@Serializable
+data class StudentTransactionsResponse(
+    val student_name: String,
+    val admission_number: String,
+    val transactions: List<FinanceTransaction>
 )
 
 @Serializable

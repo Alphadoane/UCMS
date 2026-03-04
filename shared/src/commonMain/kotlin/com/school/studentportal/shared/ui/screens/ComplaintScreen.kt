@@ -32,7 +32,7 @@ fun ComplaintScreen(
 ) {
     val scope = rememberCoroutineScope()
     val complaints by supportRepository.complaints.collectAsState()
-    val courses by academicsRepository.availableCourses.collectAsState()
+    val courses by academicsRepository.enrolledCourses.collectAsState()
     
     var currentScreen by remember { mutableStateOf("list") }
     var selectedComplaintId by remember { mutableStateOf<Int?>(null) }
@@ -41,7 +41,7 @@ fun ComplaintScreen(
     LaunchedEffect(Unit) {
         isLoading = true
         supportRepository.refreshComplaints()
-        academicsRepository.refreshAvailableCourses()
+        academicsRepository.refreshEnrolledCourses()
         isLoading = false
     }
 

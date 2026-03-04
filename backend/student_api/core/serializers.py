@@ -228,14 +228,20 @@ class ComplaintSerializer(serializers.ModelSerializer):
     course_name = serializers.CharField(source='course.name', read_only=True)
     student_name = serializers.SerializerMethodField()
     
+    title = serializers.CharField(source='description', read_only=True)
+    category = serializers.SerializerMethodField()
+
     class Meta:
         model = Complaint
         fields = [
             'id', 'student', 'student_name', 'course', 'course_name', 
-            'description', 'status', 'priority', 'created_at', 
+            'description', 'title', 'category', 'status', 'priority', 'created_at', 
             'attachments', 'comments', 'timeline'
         ]
         read_only_fields = ['id', 'status', 'created_at']
+
+    def get_category(self, obj):
+        return "Academic" # Default category as expected by frontend
 
     def get_student_name(self, obj):
         return f"{obj.student.user.first_name} {obj.student.user.last_name}"

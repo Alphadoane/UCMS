@@ -191,7 +191,8 @@ data class CreateTicketRequest(
     val title: String,
     val description: String,
     val category: String,
-    val priority: String
+    val priority: String,
+    val course_id: Int? = null
 )
 
 @Serializable
@@ -312,6 +313,59 @@ data class PasswordResetRequest(val email: String)
 
 @Serializable
 data class PasswordResetVerify(val email: String, val otp_code: String, val new_password: String)
+
+@Serializable
+data class HealthTip(
+    val id: Int,
+    val title: String,
+    val description: String,
+    val image: String? = null,
+    val category: String
+)
+
+@Serializable
+data class AppointmentRequest(
+    val appointment_type: String,
+    val reason: String,
+    val appointment_date: String
+)
+
+@Serializable
+data class AppointmentResponse(
+    val id: Int,
+    val student_name: String,
+    val appointment_type: String,
+    val reason: String,
+    val appointment_date: String,
+    val status: String,
+    val admin_notes: String? = null
+)
+
+@Serializable
+data class EmergencyAlertRequest(
+    val latitude: Double,
+    val longitude: Double,
+    val message: String
+)
+
+@Serializable
+data class EmergencyAlertResponse(
+    val id: Int,
+    val student_name: String,
+    val latitude: Double,
+    val longitude: Double,
+    val message: String,
+    val status: String,
+    val created_at: String
+)
+
+@Serializable
+data class AdminHealthStatsResponse(
+    val active_alerts_count: Int,
+    val pending_appointments_count: Int,
+    val active_alerts: List<EmergencyAlertResponse>,
+    val pending_appointments: List<AppointmentResponse>
+)
 
 @Serializable
 data class ApiResponse(val detail: String) // Generic response wrapper
@@ -485,4 +539,29 @@ interface ApiService {
 
     @POST("staff/courses/{courseId}/work")
     suspend fun postCourseWork(@Path("courseId") courseId: Int, @Body body: CourseWorkRequest): Response<StaffCourseWorkResponse>
+
+    @GET("admin/finance/students")
+    suspend fun getFinanceStudents(@Query("q") query: String? = null): Response<List<com.school.studentportal.shared.data.model.StudentFinanceDto>>
+
+    @GET("admin/finance/transactions/{studentId}")
+    suspend fun getStudentTransactions(@Path("studentId") studentId: String): Response<com.school.studentportal.shared.data.model.StudentTransactionsResponse>
+
+    // Health & Emergency
+    @GET("support/campus-life/health_tips")
+    suspend fun getHealthTips(): Response<List<HealthTip>>
+
+    @POST("support/appointments/")
+    suspend fun bookAppointment(@Body request: AppointmentRequest): Response<AppointmentResponse>
+
+    @POST("support/emergency/")
+    suspend fun sendEmergencyAlert(@Body request: EmergencyAlertRequest): Response<EmergencyAlertResponse>
+
+    @GET("admin/health/stats")
+    suspend fun getAdminHealthStats(): Response<AdminHealthStatsResponse>
+
+    @POST("support/appointments/{id}/confirm/")
+    suspend fun confirmAppointment(@Path("id") id: Int, @Body body: Map<String, String>): Response<Unit>
+
+    @POST("support/emergency/{id}/resolve/")
+    suspend fun resolveAlert(@Path("id") id: Int): Response<Unit>
 }
